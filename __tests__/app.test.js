@@ -13,7 +13,8 @@ describe('GET Requests', () => {
         .get('/api')
         .expect(200)
         .then((res) => {
-            expect(Object.keys(res.body.endpoints)).toHaveLength(3); //This length will need to be changed as more endpoints are added
+            const endpoints = require('../endpoints.json');
+            expect(res.body.endpoints).toEqual(endpoints);
             Object.keys(res.body.endpoints).forEach((endpoint) => {
                 expect(res.body.endpoints[endpoint].hasOwnProperty('description')).toBe(true);
                 expect(res.body.endpoints[endpoint].hasOwnProperty('queries')).toBe(true);
