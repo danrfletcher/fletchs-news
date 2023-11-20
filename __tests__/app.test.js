@@ -34,7 +34,7 @@ describe('GET Requests', () => {
             });
         });
     });
-    test.only('/api/articles/:article_id 200: responds with valid article object', () => {
+    test('/api/articles/:article_id 200: responds with valid article object', () => {
         return request(app)
         .get('/api/articles/1')
         .expect(200)
