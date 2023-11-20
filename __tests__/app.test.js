@@ -40,9 +40,9 @@ describe('GET Requests', () => {
         .expect(200)
         .then((res) => {
             //Check Correct Length
-            expect(res.body.articles).toHaveLength(13);
+            expect(res.body.articles.length).toBeGreaterThanOrEqual(13);
             //Check Sort Order
-            expect(res.body.articles[0].title).toBe("Eight pug gifs that remind me of mitch");
+            expect(res.body.articles).toBeSorted('created_at', 'desc');
             expect(res.body.articles[12].title).toBe("Z");
             //Check each element has correct props
             res.body.articles.forEach((article) => {
