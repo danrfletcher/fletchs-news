@@ -1,15 +1,12 @@
 const db = require('../db/connection.js');
 
 exports.selectArticles = () => {
-    const articlesPromise = db.query('SELECT * FROM articles ORDER BY created_at DESC;')
-    const commentCountPromise = db.query('SELECT * FROM comments;')
-    return Promise.all([articlesPromise, commentCountPromise])
-    .then(([articles, comments]) => {
-        const articlesWCommentCount = articles.rows.map((article) => {
-            article.comment_count = comments.rows.filter(comment => comment.article_id === article.article_id).length;
-            delete article.body;
-            return article;
-        })
-        return articlesWCommentCount;
-    });
+    return db.query(`
+        SELECT articles.article_id, articles.title, articles.topic, articles.author, articles.created_at, articles.article_img_url, COUNT(comments.comment_id) AS comment_count
+        FROM articles
+        LEFT JOIN comments ON articles.article_id = comments.article_id
+        GROUP BY articles.article_id
+        ORDER BY articles.created_at DESC;
+    `)
+    .then(articlesWCommentCount => articlesWCommentCount.rows)
 };

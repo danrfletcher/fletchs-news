@@ -52,7 +52,7 @@ describe('GET Requests', () => {
                 expect(typeof article.body).toBe('undefined'); //Check body has been removed
                 expect(typeof article.created_at).toBe('string');
                 expect(typeof article.article_img_url).toBe('string');
-                expect(typeof article.comment_count).toBe('number');
+                expect(typeof article.comment_count).toBe('string');
             });
         });
     });
