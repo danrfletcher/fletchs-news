@@ -34,4 +34,27 @@ describe('GET Requests', () => {
             });
         });
     });
+    test.only('/api/articles/:article_id 200: responds with valid article object', () => {
+        return request(app)
+        .get('/api/articles/1')
+        .expect(200)
+        .then((res) => {
+            expect(typeof res.body.article_id).toBe('number');
+            expect(typeof res.body.title).toBe('string');
+            expect(typeof res.body.topic).toBe('string');
+            expect(typeof res.body.author).toBe('string');
+            expect(typeof res.body.body).toBe('string');
+            expect(typeof res.body.created_at).toBe('string');
+            expect(typeof res.body.votes).toBe('number');
+            expect(typeof res.body.article_img_url).toBe('string');
+        })
+    });
+    test('/api/articles/:article_id 404: responds with a 404 error if article does not exist', () => {
+        return request(app)
+        .get('/api/articles/1000')
+        .expect(404)
+        .then((res) => {
+            expect(res.body.msg).toBe('article not found');
+        })
+    });
 });
