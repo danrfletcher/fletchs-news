@@ -39,14 +39,14 @@ describe('GET Requests', () => {
         .get('/api/articles/1')
         .expect(200)
         .then((res) => {
-            expect(typeof res.body.article_id).toBe('number');
-            expect(typeof res.body.title).toBe('string');
-            expect(typeof res.body.topic).toBe('string');
-            expect(typeof res.body.author).toBe('string');
-            expect(typeof res.body.body).toBe('string');
-            expect(typeof res.body.created_at).toBe('string');
-            expect(typeof res.body.votes).toBe('number');
-            expect(typeof res.body.article_img_url).toBe('string');
+            expect(res.body.article_id).toBe(1);
+            expect(res.body.title).toBe('Living in the shadow of a great man');
+            expect(res.body.topic).toBe('mitch');
+            expect(res.body.author).toBe('butter_bridge');
+            expect(res.body.body).toBe('I find this existence challenging');
+            expect(res.body.created_at).toBe('2020-07-09T20:11:00.000Z');
+            expect(res.body.votes).toBe(100);
+            expect(res.body.article_img_url).toBe('https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700');
         })
     });
     test('/api/articles/:article_id 404: responds with a 404 error if article does not exist', () => {
@@ -57,7 +57,7 @@ describe('GET Requests', () => {
             expect(res.body.msg).toBe('article not found');
         })
     });
-    test.only('/api/articles/:article_id 400: responds with a 400 error if article is not a number', () => {
+    test('/api/articles/:article_id 400: responds with a 400 error if article is not a number', () => {
         return request(app)
         .get('/api/articles/not-a-number')
         .expect(400)
