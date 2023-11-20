@@ -57,4 +57,12 @@ describe('GET Requests', () => {
             expect(res.body.msg).toBe('article not found');
         })
     });
+    test.only('/api/articles/:article_id 400: responds with a 400 error if article is not a number', () => {
+        return request(app)
+        .get('/api/articles/not-a-number')
+        .expect(400)
+        .then((res) => {
+            expect(res.body.msg).toBe('bad request');
+        })
+    })
 });
