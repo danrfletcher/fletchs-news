@@ -34,19 +34,25 @@ describe('GET Requests', () => {
             });
         });
     });
-    test.only('/api/articles 200: responds with all articles', () => {
+    test('/api/articles 200: responds with all articles & associated comment counts', () => {
         return request(app)
         .get('/api/articles')
         .expect(200)
         .then((res) => {
+            //Check Correct Length
             expect(res.body.articles).toHaveLength(13);
+            //Check Sort Order
+            expect(res.body.articles[0].title).toBe("Eight pug gifs that remind me of mitch");
+            expect(res.body.articles[12].title).toBe("Z");
+            //Check each element has correct props
             res.body.articles.forEach((article) => {
                 expect(typeof article.title).toBe('string');
                 expect(typeof article.topic).toBe('string');
                 expect(typeof article.author).toBe('string');
-                expect(typeof article.body).toBe('string');
+                expect(typeof article.body).toBe('undefined'); //Check body has been removed
                 expect(typeof article.created_at).toBe('string');
                 expect(typeof article.article_img_url).toBe('string');
+                expect(typeof article.comment_count).toBe('number');
             });
         });
     });
