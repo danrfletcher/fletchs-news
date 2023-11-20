@@ -5,8 +5,6 @@ const { handlePsqErrors, handleCustomErrors, handleServerErrors } = require('./m
 const { getTopics } = require('./controllers/topic-controllers.js');
 const { getEndpoints } = require('./controllers/endpoint-controllers.js');
 
-app.use(express.json());
-
 app.get('/api', getEndpoints);
 app.get('/api/topics', getTopics);
 
