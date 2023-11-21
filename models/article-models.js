@@ -10,6 +10,7 @@ exports.selectArticles = () => {
         ORDER BY articles.created_at DESC;
     `)
     .then(articlesWCommentCount => articlesWCommentCount.rows)
+};
 
 exports.selectArticle = (article_id) => {
     return db.query(format(`SELECT * FROM articles WHERE article_id = %L;`, [article_id]))
