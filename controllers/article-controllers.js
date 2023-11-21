@@ -1,4 +1,4 @@
-const { selectArticle } = require('../models/article-models.js');
+const { selectArticle, postComment } = require('../models/article-models.js');
 
 exports.getArticleByID = (req, res, next) => {
     const { article_id } = req.params;
@@ -7,3 +7,13 @@ exports.getArticleByID = (req, res, next) => {
     })
     .catch(next);
 };
+
+exports.postCommentByArticleID = (req, res, next) => {
+    const comment = req.body;
+    const { article_id } = req.params;
+    Promise.all([selectArticle(article_id), postComment(article_id, comment)])
+    .then(([article, comment]) => {
+        res.status(201).send({comment})
+    })
+    .catch(next);
+}

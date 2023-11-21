@@ -39,7 +39,6 @@ describe('GET Requests', () => {
         .get('/api/articles/1')
         .expect(200)
         .then((res) => {
-            console.log(res.body.article)
             expect(res.body.article.article_id).toBe(1);
             expect(res.body.article.title).toBe('Living in the shadow of a great man');
             expect(res.body.article.topic).toBe('mitch');
@@ -66,4 +65,49 @@ describe('GET Requests', () => {
             expect(res.body.msg).toBe('bad request');
         })
     })
+});
+
+describe('POST Requests', () => {
+    test('/api/articles/:article_id/comments 201: responds with a 201 status code if comment is successfully added', () => {
+        return request(app)
+        .post('/api/articles/1/comments')
+        .send({
+            body: 'Wew, I loved this article!',
+            author: "butter_bridge",
+        })
+        .expect(201)
+        .then((res) => {
+            expect(res.body.comment.body).toBe('Wew, I loved this article!');
+            expect(res.body.comment.author).toBe('butter_bridge');
+            expect(res.body.comment.comment_id).toBe(19);
+            expect(res.body.comment.article_id).toBe(1);
+            expect(res.body.comment.votes).toBe(0);
+            expect(typeof res.body.comment.created_at).toBe('string');
+        });
+    });
+    test('/api/articles/:article_id/comments 404: responds with a 404 error if article does not exist', () => {
+        return request(app)
+        .post('/api/articles/1000/comments')
+        .send({
+            body: 'Wew, I loved this article!',
+            author: "butter_bridge",
+        })
+        .expect(404)
+        .then((res) => {
+            expect(res.body.msg).toBe('article not found');
+        });
+    });
+    test('/api/articles/:article_id/comments 400: responds with a 400 error code if the article is not a number', () => {
+        return request(app)
+        .post('/api/articles/not-a-number/comments')
+        .send({
+            body: 'Wew, I loved this article!',
+            author: "butter_bridge",
+        })
+        .expect(400)
+        .expect(400)
+        .then((res) => {
+            expect(res.body.msg).toBe('bad request');
+        });
+    });
 });
