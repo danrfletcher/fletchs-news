@@ -80,12 +80,14 @@ describe('GET Requests', () => {
                 expect(res.body.comments.length).toBeGreaterThanOrEqual(11);
                 expect(res.body.comments).toBeSorted('created_at', 'desc')
                 res.body.comments.forEach((comment) => {
-                    expect(typeof comment.comment_id).toBe('number');
-                    expect(typeof comment.article_id).toBe('number');
-                    expect(typeof comment.body).toBe('string');
-                    expect(typeof comment.votes).toBe('number');
-                    expect(typeof comment.author).toBe('string');
-                    expect(typeof comment.created_at).toBe('string');
+                    expect(comment).toEqual(expect.objectContaining({
+                        comment_id: expect.any(Number),
+                        article_id: expect.any(Number),
+                        body: expect.any(String),
+                        votes: expect.any(Number),
+                        author: expect.any(String),
+                        created_at: expect.any(String),
+                    }));
                 });
             });
         });
