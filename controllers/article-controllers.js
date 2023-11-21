@@ -1,4 +1,5 @@
-const { selectArticles, selectArticle, selectCommentsByArticleID, updateArticleVotes } = require('../models/article-models.js');
+const { selectUser } = require('../models/user-models.js');
+const { selectArticles, selectArticle, selectCommentsByArticleID, updateArticleVotes, postComment } = require('../models/article-models.js');
 
 exports.getArticles = (req, res, next) => {
     selectArticles().then((articles) => {
@@ -14,6 +15,17 @@ exports.getArticleByID = (req, res, next) => {
     })
     .catch(next);
 };
+
+exports.postCommentByArticleID = (req, res, next) => {
+    const comment = req.body;
+    const { author } = comment;
+    const { article_id } = req.params;
+    Promise.all([selectArticle(article_id), selectUser(author), postComment(article_id, comment)])
+    .then(([article, author, comment]) => {
+        res.status(201).send({comment})
+    })
+    .catch(next);
+}
 
 exports.getCommentsByArticleID = (req, res, next) => {
     const { article_id } = req.params;
@@ -31,3 +43,4 @@ exports.changeVotesByArticleID = (req, res, next) => {
     .then(([article, votes]) => res.status(200).send(votes))
     .catch(next);
 };
+
