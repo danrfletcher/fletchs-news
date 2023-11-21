@@ -158,7 +158,7 @@ describe('GET Requests', () => {
         });
     });
 });
-});
+
 
 describe('DELETE Requests', () => {
     describe('DELETE /api/comments/:comment_id', () => {
