@@ -140,4 +140,21 @@ describe('GET Requests', () => {
             });
         });
     });
+    describe('GET /api/users', () => {
+        test('/api/users 200: responds with a list of all users', () => {
+            return request(app)
+           .get('/api/users')
+           .expect(200)
+           .then((res) => {
+                expect(res.body.users.length).toBeGreaterThanOrEqual(4);
+                res.body.users.forEach((user) => {
+                    expect(user).toEqual(expect.objectContaining({
+                        username: expect.any(String),
+                        name: expect.any(String),
+                        avatar_url: expect.any(String),
+                    }));
+                });
+            });
+        });
+    });
 });
