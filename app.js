@@ -5,6 +5,7 @@ const { handlePsqErrors, handleCustomErrors, handleServerErrors } = require('./m
 const { getTopics } = require('./controllers/topic-controllers.js');
 const { getArticles, getArticleByID, getCommentsByArticleID, changeVotesByArticleID } = require('./controllers/article-controllers.js');
 const { getEndpoints } = require('./controllers/endpoint-controllers.js');
+const { deleteCommentByID } = require('./controllers/comment-controllers.js');
 
 app.use(express.json());
 
@@ -14,7 +15,10 @@ app.get('/api/articles', getArticles);
 app.get('/api/articles/:article_id', getArticleByID);
 app.get('/api/articles/:article_id/comments', getCommentsByArticleID);
 
+app.delete('/api/comments/:comment_id', deleteCommentByID);
+
 app.patch('/api/articles/:article_id', changeVotesByArticleID);
+
 
 app.use(handlePsqErrors);
 app.use(handleCustomErrors);

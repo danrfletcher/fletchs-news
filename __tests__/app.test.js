@@ -142,6 +142,32 @@ describe('GET Requests', () => {
     });
 });
 
+describe('DELETE Requests', () => {
+    describe('DELETE /api/comments/:comment_id', () => {
+        test('/api/comments/:comment_id 204: successfully deletes the comment', () => {
+            return request(app)
+            .delete('/api/comments/1')
+            .expect(204)
+        });
+        test('/api/comments/:comment_id 404: responds with a 404 error when ID is not valid', () => {
+            return request(app)
+            .delete('/api/comments/1000000')
+            .expect(404)
+            .then((res) => {
+                expect(res.body.msg).toBe('comment not found');
+            });
+        });
+        test('/api/comments/:comment_id 400: responds with a 400 error when ID is not a number', () => {
+            return request(app)
+            .delete('/api/comments/not-a-number')
+            .expect(400)
+            .then((res) => {
+                expect(res.body.msg).toBe('bad request');
+            });
+        });
+    });
+});
+
 describe('PATCH Requests', () => {
     describe('PATCH /api/articles/:article_id', () => {
         test('/api/articles/:article_id 200: responds with modified property & correctly increments votes', () => {
