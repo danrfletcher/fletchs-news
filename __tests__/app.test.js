@@ -167,3 +167,44 @@ describe('DELETE Requests', () => {
         });
     });
 });
+
+describe('PATCH Requests', () => {
+    describe('PATCH /api/articles/:article_id', () => {
+        test('/api/articles/:article_id 200: responds with modified property & correctly increments votes', () => {
+            return request(app)
+            .patch('/api/articles/1')
+            .send({ inc_votes: 1 })
+            .expect(200)
+            .then((res) => {
+                expect(res.body.votes).toBe(101);
+            });
+        });
+        test('/api/articles/:article_id 404: responds with a 404 error if article does not exist', () => {
+            return request(app)
+            .patch('/api/articles/1000')
+            .send({ inc_votes: 1 })
+            .expect(404)
+            .then((res) => {
+                expect(res.body.msg).toBe('article not found');
+            });
+        });
+        test('/api/articles/:article_id 400: responds with a 400 error if article id is not a number', () => {
+            return request(app)
+            .patch('/api/articles/not-a-number')
+            .send({ inc_votes: 1 })
+            .expect(400)
+            .then((res) => {
+                expect(res.body.msg).toBe('bad request');
+            });
+        });
+        test('/api/articles/:article_id 400: responds with a 400 error if the request body is invalid', () => {
+            return request(app)
+           .patch('/api/articles/1')
+           .send({ bad_request: 1 })
+           .expect(400)
+           .then((res) => {
+                expect(res.body.msg).toBe('bad request');
+            });
+        });
+    })
+})
