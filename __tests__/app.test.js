@@ -144,20 +144,10 @@ describe('GET Requests', () => {
 
 describe('DELETE Requests', () => {
     describe('DELETE /api/comments/:comment_id', () => {
-        test('/api/comments/:comment_id 200: responds with deleted comment when ID is valid', () => {
+        test('/api/comments/:comment_id 204: successfully deletes the comment', () => {
             return request(app)
             .delete('/api/comments/1')
-            .expect(200)
-            .then((res) => {
-                expect(res.body.comment).toEqual(expect.objectContaining({
-                    comment_id: 1,
-                    body: "Oh, I've got compassion running out of my nose, pal! I'm the Sultan of Sentiment!",
-                    article_id: 9,
-                    author: 'butter_bridge',
-                    votes: 16,
-                    created_at: '2020-04-06T12:17:00.000Z'
-                }))
-            });
+            .expect(204)
         });
         test('/api/comments/:comment_id 404: responds with a 404 error when ID is not valid', () => {
             return request(app)
