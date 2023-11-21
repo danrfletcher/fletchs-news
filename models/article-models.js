@@ -9,9 +9,11 @@ exports.selectArticle = (article_id) => {
 };
 
 exports.postComment = (article_id, comment) => {
-return db.query(format(
+    const { author } = comment;
+    if (!author) return Promise.reject({status: 400, msg: "bad request"});
+    return db.query(format(
         `INSERT INTO comments (body, article_id, author, votes) VALUES (%L) RETURNING *;`
         , [comment.body, article_id, comment.author, 0]
     ))
     .then(comment => comment.rows[0]);
-};
+}

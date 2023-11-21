@@ -105,9 +105,50 @@ describe('POST Requests', () => {
             author: "butter_bridge",
         })
         .expect(400)
+        .then((res) => {
+            expect(res.body.msg).toBe('bad request');
+        });
+    });
+    test('/api/articles/:article_id/comments 201: responds with a 201 status code if comment is successfully added & additional properties were on the object & were excluded', () => {
+        return request(app)
+        .post('/api/articles/1/comments')
+        .send({
+            body: 'Wew, I loved this article!',
+            author: "butter_bridge",
+            excluded_prop: "Hello there",
+            another_excluded_prop: "this should be excluded",
+        })
+        .expect(201)
+        .then((res) => {
+            expect(res.body.comment.body).toBe('Wew, I loved this article!');
+            expect(res.body.comment.author).toBe('butter_bridge');
+            expect(res.body.comment.comment_id).toBe(21);
+            expect(res.body.comment.article_id).toBe(1);
+            expect(res.body.comment.votes).toBe(0);
+            expect(typeof res.body.comment.created_at).toBe('string');
+        });
+    });
+    test('/api/articles/:article_id/comments 400: responds with a 400 error code if the request body is missing the username property', () => {
+        return request(app)
+        .post('/api/articles/1/comments')
+        .send({
+            body: 'Wew, I loved this article!',
+        })
         .expect(400)
         .then((res) => {
             expect(res.body.msg).toBe('bad request');
+        });
+    });
+    test('/api/articles/:article_id/comments 404: responds with a 404 error if the username in the request body does not exist', () => {
+        return request(app)
+        .post('/api/articles/1/comments')
+        .send({
+            body: 'Wew, I loved this article!',
+            author: "does_not_exist",
+        })
+        .expect(404)
+        .then((res) => {
+            expect(res.body.msg).toBe('user not found');
         });
     });
 });
