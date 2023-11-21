@@ -5,10 +5,12 @@ const { handlePsqErrors, handleCustomErrors, handleServerErrors } = require('./m
 const { getTopics } = require('./controllers/topic-controllers.js');
 const { getArticles } = require('./controllers/article-controllers.js');
 const { getEndpoints } = require('./controllers/endpoint-controllers.js');
+const { getArticleByID } = require('./controllers/article-controllers.js');
 
 app.get('/api', getEndpoints);
 app.get('/api/topics', getTopics);
 app.get('/api/articles', getArticles);
+app.get('/api/articles/:article_id', getArticleByID);
 
 app.use(handlePsqErrors);
 app.use(handleCustomErrors);
