@@ -23,3 +23,8 @@ exports.selectCommentsByArticleID = (article_id) => {
     return db.query(format(`SELECT * FROM comments WHERE article_id = %L;`, [article_id]))
     .then(comments => comments.rows)
 };
+
+exports.updateArticleVotes = (article_id, inc_votes) => {
+    return inc_votes ? db.query(format(`UPDATE articles SET votes = votes + %s WHERE article_id = %s RETURNING votes;`, inc_votes, article_id))
+   .then(votes => votes.rows[0]) : Promise.reject({status: 400, msg: "bad request"});
+};
