@@ -38,7 +38,7 @@ describe('GET Requests', () => {
             });
         });
     });
-    describe.only('GET /api/articles', () => {
+    describe('GET /api/articles', () => {
         test('/api/articles 200: responds with all articles & associated comment counts', () => {
             return request(app)
             .get('/api/articles')
