@@ -68,8 +68,6 @@ describe('GET Requests', () => {
             .then((res) => {
                 //Check Correct Length
                 expect(res.body.articles.length).toBeGreaterThanOrEqual(12);
-                //Check Sort Order
-                expect(res.body.articles).toBeSorted('created_at', 'desc');
                 //Check each element has correct props
                 res.body.articles.forEach((article) => {
                     expect(typeof article.title).toBe('string');
@@ -80,6 +78,15 @@ describe('GET Requests', () => {
                     expect(typeof article.article_img_url).toBe('string');
                     expect(typeof article.comment_count).toBe('string');
                 });
+            })
+        });
+        test('/api/articles?topic=valid-topic 200: returns articles sorted correctly', () => {
+            return request(app)
+            .get('/api/articles?topic=mitch')
+            .expect(200)
+            .then((res) => {
+                //Check Sort Order
+                expect(res.body.articles).toBeSorted('created_at', 'desc');
             })
         });
         test('/api/articles?topic=invalid-topic 404: returns 404 if queried topic does not exist', () => {

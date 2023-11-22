@@ -27,13 +27,13 @@ exports.selectArticles = (query) => {
 };
 
 exports.selectArticle = (article_id) => {
-    return db.query(format(`
+    return db.query(`
         SELECT articles.*, COUNT(comments.comment_id) AS comment_count 
         FROM articles 
         LEFT JOIN comments ON articles.article_id = comments.article_id
-        WHERE articles.article_id = %L
+        WHERE articles.article_id = $1
         GROUP BY articles.article_id;
-        `, [article_id]))
+        `, [article_id])
     .then((article) => {
         return article.rows.length ? article.rows[0] : Promise.reject({status: 404, msg: "article not found"});
     });
