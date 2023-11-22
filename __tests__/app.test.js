@@ -40,42 +40,90 @@ describe('GET Requests', () => {
     });
     describe('GET /api/articles', () => {
         test('/api/articles 200: responds with all articles & associated comment counts', () => {
-        return request(app)
-        .get('/api/articles')
-        .expect(200)
-        .then((res) => {
-            //Check Correct Length
-            expect(res.body.articles.length).toBeGreaterThanOrEqual(13);
-            //Check Sort Order
-            expect(res.body.articles).toBeSorted('created_at', 'desc');
-            expect(res.body.articles[12].title).toBe("Z");
-            //Check each element has correct props
-            res.body.articles.forEach((article) => {
-                expect(typeof article.title).toBe('string');
-                expect(typeof article.topic).toBe('string');
-                expect(typeof article.author).toBe('string');
-                expect(typeof article.body).toBe('undefined'); //Check body has been removed
-                expect(typeof article.created_at).toBe('string');
-                expect(typeof article.article_img_url).toBe('string');
-                expect(typeof article.comment_count).toBe('string');
+            return request(app)
+            .get('/api/articles')
+            .expect(200)
+            .then((res) => {
+                //Check Correct Length
+                expect(res.body.articles.length).toBeGreaterThanOrEqual(13);
+                //Check Sort Order
+                expect(res.body.articles).toBeSorted('created_at', 'desc');
+                expect(res.body.articles[12].title).toBe("Z");
+                //Check each element has correct props
+                res.body.articles.forEach((article) => {
+                    expect(typeof article.title).toBe('string');
+                    expect(typeof article.topic).toBe('string');
+                    expect(typeof article.author).toBe('string');
+                    expect(typeof article.body).toBe('undefined'); //Check body has been removed
+                    expect(typeof article.created_at).toBe('string');
+                    expect(typeof article.article_img_url).toBe('string');
+                    expect(typeof article.comment_count).toBe('string');
+                });
             });
         });
-    });
+        test('/api/articles?topic=valid-topic 200: returns articles filtered by a valid topic', () => {
+            return request(app)
+            .get('/api/articles?topic=mitch')
+            .expect(200)
+            .then((res) => {
+                //Check Correct Length
+                expect(res.body.articles.length).toBeGreaterThanOrEqual(12);
+                //Check Sort Order
+                expect(res.body.articles).toBeSorted('created_at', 'desc');
+                //Check each element has correct props
+                res.body.articles.forEach((article) => {
+                    expect(typeof article.title).toBe('string');
+                    expect(typeof article.topic).toBe('string');
+                    expect(typeof article.author).toBe('string');
+                    expect(typeof article.body).toBe('undefined'); //Check body has been removed
+                    expect(typeof article.created_at).toBe('string');
+                    expect(typeof article.article_img_url).toBe('string');
+                    expect(typeof article.comment_count).toBe('string');
+                });
+            })
+        });
+        test('/api/articles?topic=invalid-topic 404: returns 404 if queried topic does not exist', () => {
+            return request(app)
+            .get('/api/articles?topic=invalid-topic')
+            .expect(404)
+            .then((res) => {
+                expect(res.body.msg).toBe('topic not found');
+            })
+        });
+        test('/api/articles?invalid-param 400: returns bad request if queried param is invalid', () => {
+            return request(app)
+            .get('/api/articles?invalid-param')
+            .expect(400)
+            .then((res) => {
+                expect(res.body.msg).toBe('bad request');
+            })
+        });
+        test('/api/articles?topic=valid-but-no-articles 200: returns empty array if topic exists but contains no articles', () => {
+            return request(app)
+            .get('/api/articles?topic=paper')
+            .expect(200)
+            .then((res) => {
+                expect(res.body.articles).toHaveLength(0);
+            });
+        });
     });  
     describe('GET /api/articles/:article_id', () => {
-        test('/api/articles/:article_id 200: responds with valid article object', () => {
+        test('/api/articles/:article_id 200: responds with valid article object with comment count', () => {
             return request(app)
             .get('/api/articles/1')
             .expect(200)
             .then((res) => {
-                expect(res.body.article.article_id).toBe(1);
-                expect(res.body.article.title).toBe('Living in the shadow of a great man');
-                expect(res.body.article.topic).toBe('mitch');
-                expect(res.body.article.author).toBe('butter_bridge');
-                expect(res.body.article.body).toBe('I find this existence challenging');
-                expect(res.body.article.created_at).toBe('2020-07-09T20:11:00.000Z');
-                expect(res.body.article.votes).toBe(100);
-                expect(res.body.article.article_img_url).toBe('https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700');
+                expect(res.body.article).toEqual(expect.objectContaining({
+                    article_id: 1,
+                    title: 'Living in the shadow of a great man',
+                    topic: 'mitch',
+                    author: 'butter_bridge',
+                    body: 'I find this existence challenging',
+                    created_at: '2020-07-09T20:11:00.000Z',
+                    votes: 100,
+                    article_img_url: 'https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700',
+                    comment_count: "11"
+                }));
             });
         });
         test('/api/articles/:article_id 404: responds with a 404 error if article does not exist', () => {
@@ -159,7 +207,6 @@ describe('GET Requests', () => {
     });
 });
 
-
 describe('DELETE Requests', () => {
     describe('DELETE /api/comments/:comment_id', () => {
         test('/api/comments/:comment_id 204: successfully deletes the comment', () => {
@@ -226,7 +273,6 @@ describe('PATCH Requests', () => {
         });
     });
   });
-
 
 describe('POST Requests', () => {
     test('/api/articles/:article_id/comments 201: responds with a 201 status code if comment is successfully added', () => {
