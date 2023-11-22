@@ -51,8 +51,8 @@ exports.getCommentsByArticleID = (req, res, next) => {
 exports.changeVotesByArticleID = (req, res, next) => {
     const { article_id } = req.params;
     const { inc_votes } = req.body;
-    Promise.all([selectArticle(article_id), updateArticleVotes(article_id, inc_votes)])
-    .then(([article, votes]) => res.status(200).send(votes))
+    selectArticle(article_id)
+    .then(ifArticleIsValid => updateArticleVotes(article_id, inc_votes))
+    .then(votes => res.status(200).send(votes))
     .catch(next);
 };
-
