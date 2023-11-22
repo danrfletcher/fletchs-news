@@ -32,12 +32,12 @@ exports.postCommentByArticleID = (req, res, next) => {
     const comment = req.body;
     const { author } = comment;
     const { article_id } = req.params;
-    Promise.all([selectArticle(article_id), selectUser(author), postComment(article_id, comment)])
-    .then(([article, author, comment]) => {
-        res.status(201).send({comment})
-    })
+    selectArticle(article_id)
+    .then((ifArticleIsValid) => selectUser(author))
+    .then((ifUserAndArticleAreValid) => postComment(article_id, comment))
+    .then(comment => res.status(201).send({ comment }))
     .catch(next);
-}
+};
 
 exports.getCommentsByArticleID = (req, res, next) => {
     const { article_id } = req.params;

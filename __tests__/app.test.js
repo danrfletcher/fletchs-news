@@ -336,7 +336,7 @@ describe('POST Requests', () => {
         .then((res) => {
             expect(res.body.comment.body).toBe('Wew, I loved this article!');
             expect(res.body.comment.author).toBe('butter_bridge');
-            expect(res.body.comment.comment_id).toBe(21);
+            expect(res.body.comment.comment_id).toBe(20);
             expect(res.body.comment.article_id).toBe(1);
             expect(res.body.comment.votes).toBe(0);
             expect(typeof res.body.comment.created_at).toBe('string');
