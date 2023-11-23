@@ -13,7 +13,7 @@
   },
   "GET /api/articles": {
     "description": "serves an array of all articles",
-    "queries": ["topic"],
+    "queries": ["topic","sort_by","order"],
     "exampleResponse": {
       "articles": [{"article1": "Article 1 info"},{"article2": "article 2 info"},{"article3": "article 3 info"}]
     }

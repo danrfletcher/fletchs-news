@@ -1,20 +1,20 @@
 const { selectUser } = require('../models/user-models.js');
-const { selectArticles, selectArticle, selectCommentsByArticleID, updateArticleVotes, postComment } = require('../models/article-models.js');
+const { selectArticles, selectArticle, selectCommentsByArticleID, updateArticleVotes, postComment, selectColumnHeader } = require('../models/article-models.js');
 const { selectTopic } = require('../models/topic-models.js');
 
 exports.getArticles = (req, res, next) => {
-    
     //Add any queries to array of promises to validate
     const query = req.query;
-    let promises = [selectArticles(query)];
+    let promises = [];
     
-    const { topic } = query;
+    const { topic, sort_by, order } = query;
     if (topic) promises.push(selectTopic(topic));
+    if (sort_by) promises.push(selectColumnHeader(sort_by));
 
     //Query model & validate queries, then send response
     Promise.all(promises)
-    .then((responses) => {
-        const articles = responses[0]
+    .then((validationsComplete) => selectArticles(query))
+    .then((articles) => {
         res.status(200).send({ articles })
     }) 
     .catch(next)

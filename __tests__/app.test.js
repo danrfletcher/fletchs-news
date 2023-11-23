@@ -97,14 +97,6 @@ describe('GET Requests', () => {
                 expect(res.body.msg).toBe('topic not found');
             })
         });
-        test('/api/articles?invalid-param 400: returns bad request if queried param is invalid', () => {
-            return request(app)
-            .get('/api/articles?invalid-param')
-            .expect(400)
-            .then((res) => {
-                expect(res.body.msg).toBe('bad request');
-            })
-        });
         test('/api/articles?topic=valid-but-no-articles 200: returns empty array if topic exists but contains no articles', () => {
             return request(app)
             .get('/api/articles?topic=paper')
@@ -112,6 +104,71 @@ describe('GET Requests', () => {
             .then((res) => {
                 expect(res.body.articles).toHaveLength(0);
             });
+        });
+        test('/api/articles?sort_by=valid-param 200: returns articles sorted by a valid-param descending (default)', () => {
+            return request(app)
+            .get('/api/articles?sort_by=title')
+            .expect(200)
+            .then((res) => {
+                expect(res.body.articles).toBeSortedBy('title', {descending: true});
+            });
+        });
+        test('/api/articles?sort_by=valid-param&order=asc 200: returns articles sorted by a valid-param ascending', () => {
+            return request(app)
+            .get('/api/articles?sort_by=title&order=asc')
+            .expect(200)
+            .then((res) => {
+                expect(res.body.articles).toBeSortedBy('title', {asscending: true});
+            });
+        });
+        test('/api/articles?sort_by=valid-param&order=desc 200: returns articles sorted by a valid-param descending', () => {
+            return request(app)
+            .get('/api/articles?sort_by=title&order=desc')
+            .expect(200)
+            .then((res) => {
+                expect(res.body.articles).toBeSortedBy('title', {descending: true});
+                });
+            });
+        });
+        test('/api/articles?sort_by=invalid-param 404: returns sort_by parameter does not exist', () => {
+            return request(app)
+            .get('/api/articles?sort_by=invalid-param')
+            .expect(404)
+            .then((res) => {
+                expect(res.body.msg).toBe('sort_by parameter does not exist');
+            });
+        });
+        test('/api/articles?sort_by=invalid-param&order=invalid-param 200: discards bad order param & defaults to descending', () => {
+            return request(app)
+            .get('/api/articles?sort_by=title&order=invalid-param')
+            .expect(200)
+            .then((res) => {
+                expect(res.body.articles).toBeSortedBy('title', {descending: true});
+            });
+        });
+        test('/api/articles?order=asc 200: returns articles sorted by default ascending', () => {
+            return request(app)
+            .get('/api/articles?order=asc')
+            .expect(200)
+            .then((res) => {
+                expect(res.body.articles).toBeSortedBy('created_at', {ascending: true});
+            });
+        });
+        test('/api/articles?order=desc 200: returns articles sorted by default descending', () => {
+            return request(app)
+            .get('/api/articles?order=desc')
+            .expect(200)
+            .then((res) => {
+                expect(res.body.articles).toBeSortedBy('created_at', {descending: true});
+            });
+        });
+        test('/api/articles?invalid-param 400: returns bad request if starting query param is invalid', () => {
+            return request(app)
+            .get('/api/articles?invalid-param')
+            .expect(400)
+            .then((res) => {
+                expect(res.body.msg).toBe('bad request');
+            })
         });
     });  
     describe('GET /api/articles/:article_id', () => {
@@ -212,7 +269,7 @@ describe('GET Requests', () => {
             });
         });
     });
-});
+
 
 describe('DELETE Requests', () => {
     describe('DELETE /api/comments/:comment_id', () => {
