@@ -45,10 +45,9 @@ describe('GET Requests', () => {
             .expect(200)
             .then((res) => {
                 //Check Correct Length
-                expect(res.body.articles.length).toBeGreaterThanOrEqual(13);
+                expect(res.body.articles.length).toBeGreaterThanOrEqual(10);
                 //Check Sort Order
-                expect(res.body.articles).toBeSorted('created_at', 'desc');
-                expect(res.body.articles[12].title).toBe("Z");
+                expect(res.body.articles).toBeSortedBy('created_at', {descending: true});
                 //Check each element has correct props
                 res.body.articles.forEach((article) => {
                     expect(typeof article.title).toBe('string');
@@ -76,7 +75,7 @@ describe('GET Requests', () => {
                 .expect(200)
                 .then((res) => {
                     //Check Correct Length
-                    expect(res.body.articles.length).toBeGreaterThanOrEqual(12);
+                    expect(res.body.articles.length).toBeGreaterThanOrEqual(10);
                     //Check each element has correct props
                     res.body.articles.forEach((article) => {
                         expect(typeof article.title).toBe('string');
@@ -172,6 +171,18 @@ describe('GET Requests', () => {
                 .expect(200)
                 .then((res) => {
                     expect(res.body.articles).toBeSortedBy('created_at', {descending: true});
+                });
+            });
+        });
+        describe('Pagination ?limit=&p=', () => {
+            test('200: returns correctly paginated set of articles at correct page', () => {
+                return request(app)
+                .get('/api/articles?limit=5&p=2')
+                .expect(200)
+                .then((res) => {
+                    expect(res.body.articles).toHaveLength(5); //Expects correct number of articles
+                    expect(res.body.articles[0].title).toBe("UNCOVERED: catspiracy to bring down democracy"); //Expects correct first article on page
+                    expect(res.body.articles[4].title).toBe("Student SUES Mitch!"); //Expects correct last article on page
                 });
             });
         });

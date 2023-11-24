@@ -14,11 +14,14 @@ exports.selectArticles = (fullQuery) => {
     if (areAllQueriesValid.includes(false)) return Promise.reject({status: 400, msg: "bad request"});
     
     //Build db fullQuery string
-    let { topic, sort_by, order } = fullQuery;
+    let { topic, sort_by, order, limit, p } = fullQuery;
     
     //Assign default values for absent queries
+    let offset = `;`
     if (!sort_by) sort_by = 'created_at';
     if (!order || (order.toUpperCase() !== 'DESC' && order.toUpperCase() !== 'ASC')) order = 'DESC';
+    if (!limit) limit = 10;
+    if (p) offset = format(` OFFSET %s;`, (p-1)*limit);
     order = order.toUpperCase();
     
     let queryStr = `        
@@ -29,7 +32,9 @@ exports.selectArticles = (fullQuery) => {
     if (topic) queryStr += format(`WHERE articles.topic = %L`, [topic])
     
     queryStr += `GROUP BY articles.article_id `
-    queryStr += format(`ORDER BY %I %s;`, sort_by, order)
+    queryStr += format(`ORDER BY %I %s `, sort_by, order)
+    queryStr += format(`LIMIT %s`, limit)
+    queryStr += offset;
 
     //Query db & return rows
     return db.query(queryStr)
