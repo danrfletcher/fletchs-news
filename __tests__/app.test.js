@@ -398,87 +398,207 @@ describe('PATCH Requests', () => {
   });
 
 describe('POST Requests', () => {
-    test('/api/articles/:article_id/comments 201: responds with a 201 status code if comment is successfully added', () => {
-        return request(app)
-        .post('/api/articles/1/comments')
-        .send({
-            body: 'Wew, I loved this article!',
-            author: "butter_bridge",
-        })
-        .expect(201)
-        .then((res) => {
-            expect(res.body.comment.body).toBe('Wew, I loved this article!');
-            expect(res.body.comment.author).toBe('butter_bridge');
-            expect(res.body.comment.comment_id).toBe(19);
-            expect(res.body.comment.article_id).toBe(1);
-            expect(res.body.comment.votes).toBe(0);
-            expect(typeof res.body.comment.created_at).toBe('string');
+    describe('/api/articles/:article_id/comments', () => {
+        test('/api/articles/:article_id/comments 201: responds with a 201 status code if comment is successfully added', () => {
+            return request(app)
+            .post('/api/articles/1/comments')
+            .send({
+                body: 'Wew, I loved this article!',
+                author: "butter_bridge",
+            })
+            .expect(201)
+            .then((res) => {
+                expect(res.body.comment.body).toBe('Wew, I loved this article!');
+                expect(res.body.comment.author).toBe('butter_bridge');
+                expect(res.body.comment.comment_id).toBe(19);
+                expect(res.body.comment.article_id).toBe(1);
+                expect(res.body.comment.votes).toBe(0);
+                expect(typeof res.body.comment.created_at).toBe('string');
+            });
+        });
+        test('/api/articles/:article_id/comments 404: responds with a 404 error if article does not exist', () => {
+            return request(app)
+            .post('/api/articles/1000/comments')
+            .send({
+                body: 'Wew, I loved this article!',
+                author: "butter_bridge",
+            })
+            .expect(404)
+            .then((res) => {
+                expect(res.body.msg).toBe('article not found');
+            });
+        });
+        test('/api/articles/:article_id/comments 400: responds with a 400 error code if the article is not a number', () => {
+            return request(app)
+            .post('/api/articles/not-a-number/comments')
+            .send({
+                body: 'Wew, I loved this article!',
+                author: "butter_bridge",
+            })
+            .expect(400)
+            .then((res) => {
+                expect(res.body.msg).toBe('bad request');
+            });
+        });
+        test('/api/articles/:article_id/comments 201: responds with a 201 status code if comment is successfully added & additional properties were on the object & were excluded', () => {
+            return request(app)
+            .post('/api/articles/1/comments')
+            .send({
+                body: 'Wew, I loved this article!',
+                author: "butter_bridge",
+                excluded_prop: "Hello there",
+                another_excluded_prop: "this should be excluded",
+            })
+            .expect(201)
+            .then((res) => {
+                expect(res.body.comment.body).toBe('Wew, I loved this article!');
+                expect(res.body.comment.author).toBe('butter_bridge');
+                expect(res.body.comment.comment_id).toBe(20);
+                expect(res.body.comment.article_id).toBe(1);
+                expect(res.body.comment.votes).toBe(0);
+                expect(typeof res.body.comment.created_at).toBe('string');
+            });
+        });
+        test('/api/articles/:article_id/comments 400: responds with a 400 error code if the request body is missing the username property', () => {
+            return request(app)
+            .post('/api/articles/1/comments')
+            .send({
+                body: 'Wew, I loved this article!',
+            })
+            .expect(400)
+            .then((res) => {
+                expect(res.body.msg).toBe('bad request');
+            });
+        });
+        test('/api/articles/:article_id/comments 404: responds with a 404 error if the username in the request body does not exist', () => {
+            return request(app)
+            .post('/api/articles/1/comments')
+            .send({
+                body: 'Wew, I loved this article!',
+                author: "does_not_exist",
+            })
+            .expect(404)
+            .then((res) => {
+                expect(res.body.msg).toBe('user not found');
+            });
         });
     });
-    test('/api/articles/:article_id/comments 404: responds with a 404 error if article does not exist', () => {
-        return request(app)
-        .post('/api/articles/1000/comments')
-        .send({
-            body: 'Wew, I loved this article!',
-            author: "butter_bridge",
-        })
-        .expect(404)
-        .then((res) => {
-            expect(res.body.msg).toBe('article not found');
+    describe('/api/articles', () => {
+        test('/api/articles 201: responds with the posted article including its preset properties', () => {
+            return request(app)
+            .post('/api/articles')
+            .send({
+                author: "butter_bridge",
+                title: "Why Frog's Legs are Becoming Britain's New Favourite Food",
+                body: "Frog's Legs are becoming Britain's favourite food because they are so much more expensive than the rest of the foods in the world.",
+                topic: "mitch",
+                article_img_url: "https://www.keziefoods.co.uk/wp-content/uploads/2021/01/Frogs-Legs1kg-8-12-pairs-in-a-pack.jpg",
+            })
+            .expect(201)
+            .then((res) => {
+                expect(res.body.article).toEqual(expect.objectContaining({
+                    article_id: expect.any(Number),
+                    created_at: expect.any(String),
+                    author: "butter_bridge",
+                    title: "Why Frog's Legs are Becoming Britain's New Favourite Food",
+                    body: "Frog's Legs are becoming Britain's favourite food because they are so much more expensive than the rest of the foods in the world.",
+                    topic: "mitch",
+                    article_img_url: "https://www.keziefoods.co.uk/wp-content/uploads/2021/01/Frogs-Legs1kg-8-12-pairs-in-a-pack.jpg",
+                    votes: 0,
+                }));
+            });
         });
-    });
-    test('/api/articles/:article_id/comments 400: responds with a 400 error code if the article is not a number', () => {
-        return request(app)
-        .post('/api/articles/not-a-number/comments')
-        .send({
-            body: 'Wew, I loved this article!',
-            author: "butter_bridge",
-        })
-        .expect(400)
-        .then((res) => {
-            expect(res.body.msg).toBe('bad request');
+        test('/api/articles 201: ignores additional properties present in the request body', () => {
+            return request(app)
+            .post('/api/articles')
+            .send({
+                author: "butter_bridge",
+                title: "Why Frog's Legs are Becoming Britain's New Favourite Food",
+                body: "Frog's Legs are becoming Britain's favourite food because they are so much more expensive than the rest of the foods in the world.",
+                topic: "mitch",
+                article_img_url: "https://www.keziefoods.co.uk/wp-content/uploads/2021/01/Frogs-Legs1kg-8-12-pairs-in-a-pack.jpg",
+                additional_param: "this should be ignored",
+            })
+            .expect(201)
+            .then((res) => {
+                expect(res.body.article).toEqual(expect.objectContaining({
+                    author: "butter_bridge",
+                    title: "Why Frog's Legs are Becoming Britain's New Favourite Food",
+                    body: "Frog's Legs are becoming Britain's favourite food because they are so much more expensive than the rest of the foods in the world.",
+                    topic: "mitch",
+                    article_img_url: "https://www.keziefoods.co.uk/wp-content/uploads/2021/01/Frogs-Legs1kg-8-12-pairs-in-a-pack.jpg",
+                    article_id: expect.any(Number),
+                    votes: 0,
+                    created_at: expect.any(String),
+                }));
+            });
         });
-    });
-    test('/api/articles/:article_id/comments 201: responds with a 201 status code if comment is successfully added & additional properties were on the object & were excluded', () => {
-        return request(app)
-        .post('/api/articles/1/comments')
-        .send({
-            body: 'Wew, I loved this article!',
-            author: "butter_bridge",
-            excluded_prop: "Hello there",
-            another_excluded_prop: "this should be excluded",
-        })
-        .expect(201)
-        .then((res) => {
-            expect(res.body.comment.body).toBe('Wew, I loved this article!');
-            expect(res.body.comment.author).toBe('butter_bridge');
-            expect(res.body.comment.comment_id).toBe(20);
-            expect(res.body.comment.article_id).toBe(1);
-            expect(res.body.comment.votes).toBe(0);
-            expect(typeof res.body.comment.created_at).toBe('string');
+        test('/api/articles 201: provides a default image if one is not included', () => {
+            return request(app)
+            .post('/api/articles')
+            .send({
+                author: "butter_bridge",
+                title: "Why Frog's Legs are Becoming Britain's New Favourite Food",
+                body: "Frog's Legs are becoming Britain's favourite food because they are so much more expensive than the rest of the foods in the world.",
+                topic: "mitch",
+            })
+            .expect(201)
+            .then((res) => {
+                expect(res.body.article).toEqual(expect.objectContaining({
+                    author: "butter_bridge",
+                    title: "Why Frog's Legs are Becoming Britain's New Favourite Food",
+                    body: "Frog's Legs are becoming Britain's favourite food because they are so much more expensive than the rest of the foods in the world.",
+                    topic: "mitch",
+                    article_img_url: expect.any(String),
+                    article_id: expect.any(Number),
+                    votes: 0,
+                    created_at: expect.any(String),
+                }));
+            });
         });
-    });
-    test('/api/articles/:article_id/comments 400: responds with a 400 error code if the request body is missing the username property', () => {
-        return request(app)
-        .post('/api/articles/1/comments')
-        .send({
-            body: 'Wew, I loved this article!',
-        })
-        .expect(400)
-        .then((res) => {
-            expect(res.body.msg).toBe('bad request');
+        test('/api/articles 400: returns bad request if any object properties are missing in the request body', () => {
+            return request(app)
+            .post('/api/articles')
+            .send({
+                title: "Why Frog's Legs are Becoming Britain's New Favourite Food",
+                body: "Frog's Legs are becoming Britain's favourite food because they are so much more expensive than the rest of the foods in the world.",
+                topic: "mitch",
+                article_img_url: "https://www.keziefoods.co.uk/wp-content/uploads/2021/01/Frogs-Legs1kg-8-12-pairs-in-a-pack.jpg",
+            })
+            .expect(400)
+            .then((res) => {
+                expect(res.body.msg).toBe('bad request');
+            });
         });
-    });
-    test('/api/articles/:article_id/comments 404: responds with a 404 error if the username in the request body does not exist', () => {
-        return request(app)
-        .post('/api/articles/1/comments')
-        .send({
-            body: 'Wew, I loved this article!',
-            author: "does_not_exist",
-        })
-        .expect(404)
-        .then((res) => {
-            expect(res.body.msg).toBe('user not found');
+        test('/api/articles 404: returns a 404 error if the author is not a valid username', () => {
+            return request(app)
+            .post('/api/articles')
+            .send({
+                author: "invalid_username",
+                title: "Why Frog's Legs are Becoming Britain's New Favourite Food",
+                body: "Frog's Legs are becoming Britain's favourite food because they are so much more expensive than the rest of the foods in the world.",
+                topic: "mitch",
+                article_img_url: "https://www.keziefoods.co.uk/wp-content/uploads/2021/01/Frogs-Legs1kg-8-12-pairs-in-a-pack.jpg",
+            })
+            .expect(404)
+            .then((res) => {
+                expect(res.body.msg).toBe('user not found');
+            });
+        });
+        test('/api/articles 404: returns a 404 error if the topic does not exist', () => {
+            return request(app)
+            .post('/api/articles')
+            .send({
+                author: "butter_bridge",
+                title: "Why Frog's Legs are Becoming Britain's New Favourite Food",
+                body: "Frog's Legs are becoming Britain's favourite food because they are so much more expensive than the rest of the foods in the world.",
+                topic: "invalid_topic",
+                article_img_url: "https://www.keziefoods.co.uk/wp-content/uploads/2021/01/Frogs-Legs1kg-8-12-pairs-in-a-pack.jpg",
+            })
+            .expect(404)
+            .then((res) => {
+                expect(res.body.msg).toBe('topic not found');
+            });
         });
     });
 });

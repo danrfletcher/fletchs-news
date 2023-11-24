@@ -1,5 +1,5 @@
 const { selectUser } = require('../models/user-models.js');
-const { selectArticles, selectArticle, selectCommentsByArticleID, updateArticleVotes, postComment, selectColumnHeader } = require('../models/article-models.js');
+const { selectArticles, selectArticle, selectCommentsByArticleID, updateArticleVotes, postComment, selectColumnHeader, createArticle } = require('../models/article-models.js');
 const { selectTopic } = require('../models/topic-models.js');
 
 exports.getArticles = (req, res, next) => {
@@ -56,3 +56,21 @@ exports.changeVotesByArticleID = (req, res, next) => {
     .then(votes => res.status(200).send(votes))
     .catch(next);
 };
+
+exports.postArticle = (req, res, next) => {
+    const article = req.body;
+    
+    //Checks author & topic exist
+    const { author } = article;
+    const { topic } = article;
+    
+    selectUser(author)
+    .then(ifAuthorIsValid => selectTopic(topic))
+    .then(ifAuthorAndTopicAreValid => createArticle(article))
+
+    //Respond with posted article & all props
+    .then((article) => {
+        res.status(201).send({ article })
+    })
+    .catch(next);
+}

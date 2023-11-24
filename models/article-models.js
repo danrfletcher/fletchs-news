@@ -84,4 +84,23 @@ exports.selectColumnHeader = (columnHeader) => {
     .then((columnHeader) => {
         return columnHeader.rows.length ? columnHeader.rows[0] : Promise.reject({status: 404, msg: "sort_by parameter does not exist"})
     });
-}
+};
+
+
+exports.createArticle = (article) => {
+    let { title, topic, author, body, article_img_url } = article;
+    
+    //Provides default image if one is not included
+    if (!article_img_url) article_img_url = "https://www.unfe.org/wp-content/uploads/2019/04/SM-placeholder.png";
+
+    //Checks all properties present in request body
+    if (!title ||!topic ||!author ||!body) return Promise.reject({status: 400, msg: "bad request"});
+
+    return db.query(format(`
+        INSERT INTO articles (title, topic, author, body, votes, article_img_url)
+        VALUES (%L, %L, %L, %L, 0, %L) RETURNING *;
+    `, title, topic, author, body, article_img_url))
+    .then((article) => {
+        return article.rows[0]
+    })
+};
