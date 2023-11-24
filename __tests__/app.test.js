@@ -128,8 +128,7 @@ describe('GET Requests', () => {
             .then((res) => {
                 expect(res.body.articles).toBeSortedBy('title', {descending: true});
                 });
-            });
-        });
+        });    
         test('/api/articles?sort_by=invalid-param 404: returns sort_by parameter does not exist', () => {
             return request(app)
             .get('/api/articles?sort_by=invalid-param')
@@ -269,7 +268,29 @@ describe('GET Requests', () => {
             });
         });
     });
-
+    describe('GET /api/users/:username', () => {
+        test('/api/users/:username 200: responds with valid username object when it exists', () => {
+            return request(app)
+            .get('/api/users/butter_bridge')
+            .expect(200)
+            .then((res) => {
+                expect(res.body.user).toEqual(expect.objectContaining({
+                    username: 'butter_bridge',
+                    name: 'jonny',
+                    avatar_url: 'https://www.healthytherapies.com/wp-content/uploads/2016/06/Lime3.jpg',
+                }));
+            })
+        });
+        test('/api/users/:username 404: responds with a 404 when username does not exist', () => {
+            return request(app)
+            .get('/api/users/not-a-username')
+            .expect(404)
+            .then((res) => {
+                expect(res.body.msg).toBe('user not found');
+            });
+        });
+    });
+});
 
 describe('DELETE Requests', () => {
     describe('DELETE /api/comments/:comment_id', () => {
