@@ -1,4 +1,4 @@
-const { deleteComment } = require('../models/comment-models.js');
+const { deleteComment, selectComment, updateCommentVotes } = require('../models/comment-models.js');
 
 exports.deleteCommentByID = (req, res, next) => {
     const { comment_id } = req.params;
@@ -6,4 +6,13 @@ exports.deleteCommentByID = (req, res, next) => {
         res.status(204).end()
     })
    .catch(next);
+};
+
+exports.changeVotesByCommentID = (req, res, next) => {
+    const { comment_id } = req.params;
+    const { inc_votes } = req.body;
+    selectComment(comment_id)
+    .then(ifCommentIsValid => updateCommentVotes(comment_id, inc_votes))
+    .then(votes => res.status(200).send(votes))
+    .catch(next);
 };

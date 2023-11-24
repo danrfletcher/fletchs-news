@@ -357,6 +357,44 @@ describe('PATCH Requests', () => {
             });
         });
     });
+    describe('PATCH /api/comments/:comment_id', () => {
+        test('/api/comments/:comment_id 200: responds with changed votes property for a valid comment', () => {
+            return request(app)
+            .patch('/api/comments/18')
+            .send({ inc_votes: 1 })
+            .expect(200)
+            .then((res) => {
+                expect(res.body.votes).toBe(17);
+            });
+        });
+        test('/api/comments/:comment_id 404: responds with a 404 for comment that does not exist', () => {
+            return request(app)
+            .patch('/api/comments/1000')
+            .send({ inc_votes: 1 })
+            .expect(404)
+            .then((res) => {
+                expect(res.body.msg).toBe('comment not found');
+            });
+        });
+        test('/api/comments/:comment_id 400: responds with a 400 error if comment id is not a number', () => {
+            return request(app)
+            .patch('/api/comments/not-a-number')
+            .send({ inc_votes: 1 })
+            .expect(400)
+            .then((res) => {
+                expect(res.body.msg).toBe('bad request');
+            });
+        });
+        test('/api/comments/:comment_id 400: responds with a 400 error when the request body is invalid', () => {
+            return request(app)
+            .patch('/api/comments/18')
+            .send({ bad_request: 1 })
+            .expect(400)
+            .then((res) => {
+                expect(res.body.msg).toBe('bad request');
+            });
+        });
+    });
   });
 
 describe('POST Requests', () => {
