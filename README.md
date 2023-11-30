@@ -48,7 +48,7 @@ Seeding adds example data to the test, development & production databases. Use:
 See the above link for more information on seeding the production database & deploying the API remotely. 
 
 
-## Versions
+## 🔢 Versions
 ___
 
 | Tech       | Version | Command    | 
