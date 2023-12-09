@@ -25,6 +25,7 @@
   },
   "homepage": "https://github.com/northcoders/be-nc-news#readme",
   "devDependencies": {
+    "@types/express": "^4.17.21",
     "@types/jest": "^29.5.11",
     "@types/prettier": "^3.0.0",
     "husky": "^8.0.2",

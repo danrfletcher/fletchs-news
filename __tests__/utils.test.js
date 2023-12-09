@@ -53,6 +53,7 @@ describe("createRef", () => {
     let expected = { title1: 1 };
     expect(actual).toEqual(expected);
     actual = createRef(input, "name", "title");
+    //@ts-ignore
     expected = { name1: "title1" };
     expect(actual).toEqual(expected);
   });

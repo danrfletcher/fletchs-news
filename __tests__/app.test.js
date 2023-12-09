@@ -93,7 +93,7 @@ describe('GET Requests', () => {
                 .get('/api/articles?topic=mitch')
                 .expect(200)
                 .then((res) => {
-                    //Check Sort Order
+                    //@ts-ignore Check Sort Order
                     expect(res.body.articles).toBeSorted('created_at', 'desc');
                 })
             });
@@ -128,6 +128,7 @@ describe('GET Requests', () => {
                 .get('/api/articles?sort_by=title&order=asc')
                 .expect(200)
                 .then((res) => {
+                    // @ts-ignore
                     expect(res.body.articles).toBeSortedBy('title', {asscending: true});
                 });
             });
@@ -162,6 +163,7 @@ describe('GET Requests', () => {
                 .get('/api/articles?order=asc')
                 .expect(200)
                 .then((res) => {
+                    // @ts-ignore
                     expect(res.body.articles).toBeSortedBy('created_at', {ascending: true});
                 });
             });
@@ -230,6 +232,7 @@ describe('GET Requests', () => {
             .expect(200)
             .then((res) => {
                 expect(res.body.comments.length).toBeGreaterThanOrEqual(11);
+                // @ts-ignore
                 expect(res.body.comments).toBeSorted('created_at', 'desc')
                 res.body.comments.forEach((comment) => {
                     expect(comment).toEqual(expect.objectContaining({
