@@ -2,7 +2,7 @@ const db = require('../src/db/connection.js');
 const seed = require('../src/db/seeds/seed.js');
 const testData = require('../src/db/data/test-data/index.js');
 const request = require('supertest');
-const app = require('../src/app.js');
+const app = require('../src/app.ts');
 
 beforeAll(() => seed(testData));
 afterAll(() => db.end());
@@ -93,7 +93,7 @@ describe('GET Requests', () => {
                 .get('/api/articles?topic=mitch')
                 .expect(200)
                 .then((res) => {
-                    //@ts-ignore Check Sort Order
+                    //Check Sort Order
                     expect(res.body.articles).toBeSorted('created_at', 'desc');
                 })
             });
@@ -128,7 +128,6 @@ describe('GET Requests', () => {
                 .get('/api/articles?sort_by=title&order=asc')
                 .expect(200)
                 .then((res) => {
-                    // @ts-ignore
                     expect(res.body.articles).toBeSortedBy('title', {asscending: true});
                 });
             });
@@ -163,7 +162,6 @@ describe('GET Requests', () => {
                 .get('/api/articles?order=asc')
                 .expect(200)
                 .then((res) => {
-                    // @ts-ignore
                     expect(res.body.articles).toBeSortedBy('created_at', {ascending: true});
                 });
             });
