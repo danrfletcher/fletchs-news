@@ -1,8 +1,8 @@
-const db = require('../db/connection.js');
-const seed = require('../db/seeds/seed.js');
-const testData = require('../db/data/test-data/index.js');
+const db = require('../src/db/connection.js');
+const seed = require('../src/db/seeds/seed.js');
+const testData = require('../src/db/data/test-data/index.js');
 const request = require('supertest');
-const app = require('../app.js');
+const app = require('../src/app.js');
 
 beforeAll(() => seed(testData));
 afterAll(() => db.end());
@@ -14,7 +14,7 @@ describe('GET Requests', () => {
             .get('/api')
             .expect(200)
             .then((res) => {
-                const endpoints = require('../endpoints.json');
+                const endpoints = require('../src/endpoints.json');
                 expect(res.body.endpoints).toEqual(endpoints);
                 Object.keys(res.body.endpoints).forEach((endpoint) => {
                     expect(res.body.endpoints[endpoint].hasOwnProperty('description')).toBe(true);
