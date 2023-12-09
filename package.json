@@ -28,7 +28,10 @@
     "jest": "^27.5.1",
     "jest-extended": "^2.0.0",
     "jest-sorted": "^1.0.14",
-    "supertest": "^6.3.3"
+    "nodemon": "^3.0.2",
+    "supertest": "^6.3.3",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.3.3"
   },
   "dependencies": {
     "dotenv": "^16.0.0",
