@@ -2,7 +2,7 @@ const {
   convertTimestampToDate,
   createRef,
   formatComments,
-} = require("../db/seeds/utils");
+} = require("../src/db/seeds/utils");
 
 describe("convertTimestampToDate", () => {
   test("returns a new object", () => {
@@ -53,6 +53,7 @@ describe("createRef", () => {
     let expected = { title1: 1 };
     expect(actual).toEqual(expected);
     actual = createRef(input, "name", "title");
+    //@ts-ignore
     expected = { name1: "title1" };
     expect(actual).toEqual(expected);
   });

@@ -1,8 +1,8 @@
-const db = require('../db/connection.js');
-const seed = require('../db/seeds/seed.js');
-const testData = require('../db/data/test-data/index.js');
+const db = require('../src/db/connection.js');
+const seed = require('../src/db/seeds/seed.js');
+const testData = require('../src/db/data/test-data/index.js');
 const request = require('supertest');
-const app = require('../app.js');
+const app = require('../src/app.js');
 
 beforeAll(() => seed(testData));
 afterAll(() => db.end());
@@ -14,7 +14,7 @@ describe('GET Requests', () => {
             .get('/api')
             .expect(200)
             .then((res) => {
-                const endpoints = require('../endpoints.json');
+                const endpoints = require('../src/endpoints.json');
                 expect(res.body.endpoints).toEqual(endpoints);
                 Object.keys(res.body.endpoints).forEach((endpoint) => {
                     expect(res.body.endpoints[endpoint].hasOwnProperty('description')).toBe(true);
@@ -93,7 +93,7 @@ describe('GET Requests', () => {
                 .get('/api/articles?topic=mitch')
                 .expect(200)
                 .then((res) => {
-                    //Check Sort Order
+                    //@ts-ignore Check Sort Order
                     expect(res.body.articles).toBeSorted('created_at', 'desc');
                 })
             });
@@ -128,6 +128,7 @@ describe('GET Requests', () => {
                 .get('/api/articles?sort_by=title&order=asc')
                 .expect(200)
                 .then((res) => {
+                    // @ts-ignore
                     expect(res.body.articles).toBeSortedBy('title', {asscending: true});
                 });
             });
@@ -162,6 +163,7 @@ describe('GET Requests', () => {
                 .get('/api/articles?order=asc')
                 .expect(200)
                 .then((res) => {
+                    // @ts-ignore
                     expect(res.body.articles).toBeSortedBy('created_at', {ascending: true});
                 });
             });
@@ -230,6 +232,7 @@ describe('GET Requests', () => {
             .expect(200)
             .then((res) => {
                 expect(res.body.comments.length).toBeGreaterThanOrEqual(11);
+                // @ts-ignore
                 expect(res.body.comments).toBeSorted('created_at', 'desc')
                 res.body.comments.forEach((comment) => {
                     expect(comment).toEqual(expect.objectContaining({
