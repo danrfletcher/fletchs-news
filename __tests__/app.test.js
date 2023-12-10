@@ -222,6 +222,18 @@ describe('GET Requests', () => {
                 expect(res.body.msg).toBe('bad request');
             })
         });
+        describe('Pagination ?limit=&p=', () => {
+            test('200: returns correctly paginated set of comments for a given article & given page', () => {
+                return request(app)
+                .get('/api/articles/1/comments?limit=5&p=2')
+                .expect(200)
+                .then((res) => {
+                    expect(res.body.comments).toHaveLength(5);
+                    expect(res.body.comments[0].comment_id).toBe(7);
+                    expect(res.body.comments[4].comment_id).toBe(13);
+                })
+            })
+        })
     })
     describe('GET /api/articles/article_id/comments', () => {
         test('200: responds with a list of all comments for an article', () => {
@@ -229,8 +241,7 @@ describe('GET Requests', () => {
             .get('/api/articles/1/comments')
             .expect(200)
             .then((res) => {
-                expect(res.body.comments.length).toBeGreaterThanOrEqual(11);
-                // @ts-ignore
+                expect(res.body.comments.length).toBeGreaterThanOrEqual(10);
                 expect(res.body.comments).toBeSorted('created_at', 'desc')
                 res.body.comments.forEach((comment) => {
                     expect(comment).toEqual(expect.objectContaining({

@@ -53,10 +53,11 @@ exports.postCommentByArticleID = async (req, res, next) => {
 exports.getCommentsByArticleID = async (req, res, next) => {
     try {
         const { article_id } = req.params;
+        const query = req.query
 
         const [article, comments] = await Promise.all([
             selectArticle(article_id),
-            selectCommentsByArticleID(article_id)
+            selectCommentsByArticleID(article_id, query)
         ]);
 
         res.status(200).send({ comments });

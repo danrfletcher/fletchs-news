@@ -70,8 +70,18 @@ exports.postComment = (article_id, comment) => {
 
 
 
-exports.selectCommentsByArticleID = (article_id) => {
-    return db.query(format(`SELECT * FROM comments WHERE article_id = %L;`, [article_id]))
+exports.selectCommentsByArticleID = (article_id, fullQuery) => {
+    let { limit, p } = fullQuery;
+    
+    let offset = ';';
+    if (!limit) limit = 10;
+    if (p) offset = format(` OFFSET %s;`, (p-1)*limit);
+
+    let queryStr = format(`SELECT * FROM comments WHERE article_id = %L `, [article_id])
+    queryStr += format(`LIMIT %s`, limit)
+    queryStr += offset;
+
+    return db.query(queryStr)
     .then(comments => comments.rows)
 };
 
