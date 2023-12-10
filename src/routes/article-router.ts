@@ -113,7 +113,9 @@ articlesRouter.route('/:article_id')
      *   get:
      *     tags:
      *       - Articles
-     *     description: Serves an array of all comments for a given article.
+     *     description: |
+     *       Retrieves a paginated list of comments for a given article.
+     *       Supports pagination using query parameters: limit (default: 10) and p (page).
      *     parameters:
      *       - in: path
      *         name: article_id
@@ -121,9 +123,21 @@ articlesRouter.route('/:article_id')
      *           type: integer
      *         required: true
      *         description: ID of the article for which to retrieve comments.
+     *       - in: query
+     *         name: limit
+     *         schema:
+     *           type: integer
+     *           default: 10
+     *         description: Number of comments to retrieve (default: 10).
+     *       - in: query
+     *         name: p
+     *         schema:
+     *           type: integer
+     *           default: 1
+     *         description: Page number for paginated results (calculated using limit).
      *     responses:
      *       200:
-     *         description: List of comments for the specified article.
+     *         description: Paginated list of comments for the specified article.
      *         content:
      *           application/json:
      *             example:
@@ -138,6 +152,10 @@ articlesRouter.route('/:article_id')
      *                   author: "butter_bridge"
      *                   created_at: "2020-07-09T20:11:00.000Z"
      *                   article_id: 1
+     *       400:
+     *         description: Bad request. Invalid parameters provided.
+     *       404:
+     *         description: Article not found.
      */
 
     articlesRouter.route('/')
