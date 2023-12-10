@@ -1,6 +1,6 @@
 # Fletch's News API
 ___
-[![My Skills](https://skillicons.dev/icons?i=js,express,jest,nodejs,postgres,git,github)](https://skillicons.dev)
+[![My Skills](https://skillicons.dev/icons?i=ts,js,express,jest,nodejs,postgres,git,github)](https://skillicons.dev)
 
 **Fletch's News is an API capable of fetching & posting articles, comments, users & topics.** This API is built with JavaScript, utilizing Express for handling of HTTP requests, Jest for testing, and Node.js for server-side scripting. Data is stored in a PostgreSQL database. For a complete list of endpoints, complete with descriptions, example responses & a list of possible queries, see `endpoints.json` located in the project's root directory.
 
