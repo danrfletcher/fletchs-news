@@ -1,9 +1,10 @@
 import express, { Application } from 'express';
+import apiRouter from './routes/api-router';
+
 const app: Application = express();
 
 app.use(express.json());
 
-const apiRouter = require('./routes/api-router.js');
 app.use('/api', apiRouter);
 
 import { handlePsqErrors, handleCustomErrors, handleServerErrors } from './middlewares/error-handlers';
