@@ -1,7 +1,8 @@
-import {Express, Request, Response} from 'express';
+import { Express, Request, Response } from 'express';
 import swaggerJsdoc from 'swagger-jsdoc';
 import swaggerUi from 'swagger-ui-express';
-import {version} from '../../package.json';
+import { version } from '../../package.json';
+import { PORT } from '../listen'
 
 const options: swaggerJsdoc.Options = {
     definition:{
@@ -39,6 +40,8 @@ function swaggerDocs(app: Express, port: number){
         res.setHeader('Content-Type', 'application/json')
         res.send(swaggerSpec);
     });
+
+    console.log(`Docs available at http://localhost:${PORT}/docs`)
 }
 
 export default swaggerDocs;
