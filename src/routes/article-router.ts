@@ -128,7 +128,8 @@ articlesRouter.route('/:article_id')
      *         schema:
      *           type: integer
      *           default: 10
-     *         description: Number of comments to retrieve (default: 10).
+     *         description: |
+     *              Number of comments to retrieve (default: 10).
      *       - in: query
      *         name: p
      *         schema:
