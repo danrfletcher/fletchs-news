@@ -1,2 +1,5 @@
+# Workspace level vscode configs
+.vscode
+
 node_modules
 .env.*
