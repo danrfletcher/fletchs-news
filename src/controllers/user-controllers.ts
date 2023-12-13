@@ -1,4 +1,4 @@
-const { selectUser, selectUsers } = require("../models/user-models");
+const { selectUser, selectUsers, createUser, checkUsername } = require("../models/user-models");
 import { Request, Response, NextFunction } from "express";
 
 export const getUsers = (req: Request, res: Response, next: NextFunction): void => {
@@ -13,6 +13,16 @@ export const getUser = (req: Request, res: Response, next: NextFunction): void =
     .catch(next)
 };
 
-export const postUser = (req: Request, res: Response, next: NextFunction): void => {
-    console.log("Hi from user controller")
+export const postUser = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    try {
+        const usernameAvailable = await checkUsername(req.body.username)
+        if (usernameAvailable) {
+            const user = await createUser(req.body)
+            res.status(201).send({user})
+        } else {
+            res.status(500).send({msg: "internal server error"})
+        }
+    } catch (err) {
+        next(err);
+    }
 }

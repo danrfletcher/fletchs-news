@@ -630,6 +630,54 @@ describe('POST Requests', () => {
             });
         });
     });
+    describe('/api/users', () => {
+        test('201: responds with new user when successfully created', () => {
+            return request(app)
+            .post('/api/users')
+            .send({
+                username: "new_user",
+                name: "john",
+                avatar_url: "https://www.healthytherapies.com/wp-content/uploads/2016/06/Lime3.jpg",
+                password: "password"
+            })
+            .expect(201)
+            .then((res) => {
+                expect(res.body.user).toEqual(expect.objectContaining({
+                    username: "new_user",
+                    name: "john",
+                    avatar_url: "https://www.healthytherapies.com/wp-content/uploads/2016/06/Lime3.jpg",
+                    password: expect.not.stringMatching(/^password$/)
+                }));
+            });
+        });
+        test('400: responds with bad request when properties are missing from the request', () => {
+            return request(app)
+            .post('/api/users')
+            .send({
+                username: "another_new_user",
+                name: "john",
+                avatar_url: "https://www.healthytherapies.com/wp-content/uploads/2016/06/Lime3.jpg"
+            })
+            .expect(400)
+            .then((res) => {
+                expect(res.body.msg).toBe('bad request');
+            })
+        });
+        test('409: responds with error when the username already exists', () => {
+            return request(app)
+            .post('/api/users')
+            .send({
+                username: "butter_bridge",
+                name: "john",
+                avatar_url: "https://www.healthytherapies.com/wp-content/uploads/2016/06/Lime3.jpg",
+                password: "password"
+            })
+            .expect(409)
+            .then((res) => {
+                expect(res.body.msg).toBe('username already exists');
+            })
+        });
+    })
 });
 
 
