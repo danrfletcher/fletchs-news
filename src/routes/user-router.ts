@@ -1,7 +1,7 @@
 import { Router } from 'express';
 const usersRouter = Router();
+import { getUser, getUsers } from '../controllers/user-controllers';
 
-const { getUsers, getUser } = require('../controllers/user-controllers.js');
 usersRouter.get('/', getUsers);
 /**
  * @openapi

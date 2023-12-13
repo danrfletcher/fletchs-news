@@ -1,4 +1,5 @@
 const { selectUser } = require('../models/user-models.js');
+//import { selectUser } from '../models/user-models';
 const { selectArticles, selectArticle, selectCommentsByArticleID, updateArticleVotes, postComment, selectColumnHeader, createArticle } = require('../models/article-models.js');
 const { selectTopic } = require('../models/topic-models.js');
 
