@@ -18,7 +18,13 @@ export const postUser = async (req: Request, res: Response, next: NextFunction):
         const usernameAvailable = await checkUsername(req.body.username)
         if (usernameAvailable) {
             const user = await createUser(req.body)
-            res.status(201).send({user})
+            res.status(201).send({
+                user: {
+                    username: user.username,
+                    name: user.name,
+                    avatar_url: user.avatar_url
+                }
+            })
         } else {
             res.status(500).send({msg: "internal server error"})
         }

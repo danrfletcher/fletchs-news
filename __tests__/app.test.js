@@ -646,8 +646,8 @@ describe('POST Requests', () => {
                     username: "new_user",
                     name: "john",
                     avatar_url: "https://www.healthytherapies.com/wp-content/uploads/2016/06/Lime3.jpg",
-                    password: expect.not.stringMatching(/^password$/)
                 }));
+                expect(res.body.user).not.toHaveProperty("password");
             });
         });
         test('400: responds with bad request when properties are missing from the request', () => {
