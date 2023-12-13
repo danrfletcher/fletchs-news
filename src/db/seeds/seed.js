@@ -1,3 +1,4 @@
+const argon2 = require('argon2');
 const format = require('pg-format');
 const db = require('../connection');
 const {
@@ -19,6 +20,14 @@ const seed = ({ topicData, userData, articleData, commentData }) => {
       return db.query(`DROP TABLE IF EXISTS topics;`);
     })
     .then(() => {
+      return Promise.all(userData.map(user => argon2.hash(user.password)))
+    })
+    .then((passwords) => {
+      passwords.forEach((password, index) => {
+        userData[index].password = password
+      });
+    })
+    .then(() => {
       const topicsTablePromise = db.query(`
       CREATE TABLE topics (
         slug VARCHAR PRIMARY KEY,
@@ -29,7 +38,8 @@ const seed = ({ topicData, userData, articleData, commentData }) => {
       CREATE TABLE users (
         username VARCHAR PRIMARY KEY,
         name VARCHAR NOT NULL,
-        avatar_url VARCHAR
+        avatar_url VARCHAR,
+        password VARCHAR NOT NULL
       );`);
 
       return Promise.all([topicsTablePromise, usersTablePromise]);
@@ -66,11 +76,12 @@ const seed = ({ topicData, userData, articleData, commentData }) => {
       const topicsPromise = db.query(insertTopicsQueryStr);
 
       const insertUsersQueryStr = format(
-        'INSERT INTO users ( username, name, avatar_url) VALUES %L;',
-        userData.map(({ username, name, avatar_url }) => [
+        'INSERT INTO users ( username, name, avatar_url, password) VALUES %L;',
+        userData.map(({ username, name, avatar_url, password }) => [
           username,
           name,
           avatar_url,
+          password
         ])
       );
       const usersPromise = db.query(insertUsersQueryStr);
