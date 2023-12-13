@@ -1,6 +1,6 @@
 import { Router } from 'express';
 const usersRouter = Router();
-import { getUser, getUsers } from '../controllers/user-controllers';
+import { getUser, getUsers, postUser } from '../controllers/user-controllers';
 
 usersRouter.get('/', getUsers);
 /**
@@ -30,6 +30,27 @@ usersRouter.get('/', getUsers);
  *                   avatar_url: "https://avatars2.githubusercontent.com/u/24604688?s=460&v=4"
  *                 }
  *               ]
+ */
+usersRouter.post('/', postUser);
+/**
+ * @openapi
+ * /api/users:
+ *   post:
+ *     tags:
+ *       - Users
+ *     description: Adds a new user to the database, returning the user excluding their hashed password.
+ *     responses:
+ *       201:
+ *         description: New user object.
+ *         content: 
+ *           application/json:
+ *             exampleResponse:
+ *               user: {
+ *                 user_id: 10,
+ *                 username: new_user,
+ *                 name: "john",
+ *                 avatar_url: "https://avatars2.githubusercontent.com/u/24604688?s=460&v=4"
+ *                 }
  */
 usersRouter.get('/:username', getUser);
 /**

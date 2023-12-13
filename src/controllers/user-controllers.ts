@@ -1,4 +1,4 @@
-import { selectUser, selectUsers } from "../models/user-models";
+const { selectUser, selectUsers } = require("../models/user-models");
 import { Request, Response, NextFunction } from "express";
 
 export const getUsers = (req: Request, res: Response, next: NextFunction): void => {
