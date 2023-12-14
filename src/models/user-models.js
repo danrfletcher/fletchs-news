@@ -41,6 +41,30 @@ exports.createUser = async (user) => {
     } catch (error) {
         throw error;
     }
+};
 
+exports.selectUserDiscreetly = (username) => {
+    if (!username) return Promise.reject({status: 400, msg: "bad request"});
+    
+    return db.query(format(`SELECT * FROM users WHERE username = %L;`, [username]))
+   .then((user) => {
+    return user.rows.length? user.rows[0] : Promise.reject({status: 401, msg: "username or password incorrect"});
+   });
+};
+
+exports.authenticateUser = async ({username, password}, hash) => {
+    try {
+        if (!username || !password) {
+            return Promise.reject({status: 400, msg: "bad request"})
+        }
+        const passwordValidated = await argon2.verify(hash, password)
+        if (passwordValidated) {
+            return true
+        } else {
+            return Promise.reject({status: 401, msg: "username or password incorrect"})
+        }
+    } catch (err) {
+        throw (error)
+    }
 }
 

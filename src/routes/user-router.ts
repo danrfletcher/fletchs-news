@@ -1,6 +1,6 @@
 import { Router } from 'express';
 const usersRouter = Router();
-import { getUser, getUsers, postUser } from '../controllers/user-controllers';
+import { getUser, getUsers, postUser, loginUser } from '../controllers/user-controllers';
 
 usersRouter.get('/', getUsers);
 /**
@@ -80,7 +80,53 @@ usersRouter.get('/:username', getUser);
  *                 avatar_url: "https://www.healthytherapies.com/wp-content/uploads/2016/06/Lime3.jpg"
  *               }
  */
-
+usersRouter.post('/login', loginUser)
+/**
+ * @openapi
+ * /api/users/login:
+ *   post:
+ *     tags:
+ *       - Users
+ *     summary: Logs the user into their account
+ *     description: Allows a user to log in using their username and password.
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               username:
+ *                 type: string
+ *                 example: "username"
+ *               password:
+ *                 type: string
+ *                 example: "password"
+ *     responses:
+ *       200:
+ *         description: Successful login
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 user:
+ *                   type: object
+ *                   properties:
+ *                     username:
+ *                       type: string
+ *                       example: "grumpy19"
+ *                     name:
+ *                       type: string
+ *                       example: "Paul Grump"
+ *                     avatar_url:
+ *                       type: string
+ *                       example: "https://vignette.wikia.nocookie.net/mrmen/images/7/78/Mr-Grumpy-3A.PNG/revision/latest?cb=20170707233013"
+ *       400:
+ *         description: Bad request
+ *       401:
+ *         description: Unauthorized - when username or password is incorrect
+ */
 
 
 export default usersRouter;
