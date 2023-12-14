@@ -1,5 +1,6 @@
-const { selectUser, selectUsers, createUser, checkUsername } = require("../models/user-models");
+const { selectUser, selectUsers, createUser, checkUsername, authenticateUser, selectUserDiscreetly } = require("../models/user-models");
 import { Request, Response, NextFunction } from "express";
+import jwt, { Secret, JwtPayload } from 'jsonwebtoken';
 
 export const getUsers = (req: Request, res: Response, next: NextFunction): void => {
     selectUsers().then((users: any) => res.status(200).send({users}));
@@ -24,7 +25,6 @@ export const postUser = async (req: Request, res: Response, next: NextFunction):
         const usernameAvailable = await checkUsername(req.body.username)
         if (usernameAvailable) {
             const user = await createUser(req.body)
-            console.log("HI")
             res.status(201).send({
                 user: {
                     username: user.username,
@@ -40,4 +40,22 @@ export const postUser = async (req: Request, res: Response, next: NextFunction):
     }
 };
 
-export const loginUser = async () => {}
+export const loginUser = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    try {
+        const validation = await selectUserDiscreetly(req.body.username)
+        const authentication = await authenticateUser(req.body,validation.password)
+        if (authentication) {
+            const { username } = req.body;
+            const user = {name: username}
+
+            const accessTokenSecret = process.env.ACCESS_TOKEN_SECRET as string;
+            const accessToken = jwt.sign(user, accessTokenSecret)
+
+            res.status(200).send({accessToken})
+        } else {
+            res.status(500).send({msg: "internal server error"})
+        }
+    } catch (err) {
+        next(err);
+    }
+}
