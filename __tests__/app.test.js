@@ -678,6 +678,55 @@ describe('POST Requests', () => {
             })
         });
     })
+    describe('/api/users/login', () => {
+        test('200: returns JWT & logs user into account when correct details are passed', () => {
+            return request(app)
+            .post('/api/users/login')
+            .send({
+                username: "butter_bridge",
+                password: "password"
+            })
+            .expect(200)
+            .then((res) => {
+                expect(typeof res.body.accessToken).toBe('string');
+            })
+        });
+        test('400: returns bas request when parameters are missing from the request', () => {
+            return request(app)
+            .post('/api/users/login')
+            .send({
+                username: "butter_bridge",
+            })
+            .expect(400)
+            .then((res) => {
+                expect(res.body.msg).toBe('bad request');
+            })
+        });
+        test('401: return unauthorized when user enters incorrect password', () => {
+            return request(app)
+            .post('/api/users/login')
+            .send({
+                username: "butter_bridge",
+                password: "not_the_password"
+            })
+            .expect(401)
+            .then((res) => {
+                expect(res.body.msg).toBe('username or password incorrect');
+            })
+        });
+        test('401: returns unauthorized when user enters incorrect username', () => {
+            return request(app)
+            .post('/api/users/login')
+            .send({
+                username: "not_butter_bridge",
+                password: "password"
+            })
+            .expect(401)
+            .then((res) => {
+                expect(res.body.msg).toBe('username or password incorrect');
+            })
+        });
+    })
 });
 
 
