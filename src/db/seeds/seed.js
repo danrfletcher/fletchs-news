@@ -10,6 +10,9 @@ const {
 const seed = ({ topicData, userData, articleData, commentData }) => {
   return db
     .query(`DROP TABLE IF EXISTS article_votes;`)
+    .then(()=> {
+      return db.query(`DROP TABLE IF EXISTS refresh_tokens;`);
+    })
     .then(() => {
       return db.query(`DROP TABLE IF EXISTS comment_votes;`);
     })
@@ -34,12 +37,6 @@ const seed = ({ topicData, userData, articleData, commentData }) => {
       });
     })
     .then(() => {
-      const topicsTablePromise = db.query(`
-      CREATE TABLE topics (
-        slug VARCHAR PRIMARY KEY,
-        description VARCHAR
-      );`);
-
       const usersTablePromise = db.query(`
       CREATE TABLE users (
         username VARCHAR PRIMARY KEY,
@@ -48,7 +45,20 @@ const seed = ({ topicData, userData, articleData, commentData }) => {
         password VARCHAR NOT NULL
       );`);
 
-      return Promise.all([topicsTablePromise, usersTablePromise]);
+      const topicsTablePromise = db.query(`
+      CREATE TABLE topics (
+        slug VARCHAR PRIMARY KEY,
+        description VARCHAR
+      );`);
+
+      const refreshTokensPromise = db.query(`
+      CREATE TABLE refresh_tokens (
+        refresh_token_id SERIAL PRIMARY KEY,
+        username VARCHAR NOT NULL REFERENCES users(username),
+        refresh_token VARCHAR NOT NULL
+      )
+      `)
+      return Promise.all([topicsTablePromise, usersTablePromise, refreshTokensPromise]);
     })
     .then(() => {
       return db.query(`
