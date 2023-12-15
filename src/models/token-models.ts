@@ -3,6 +3,12 @@ const format = require('pg-format');
 const argon2 = require('argon2');
 import jwt from 'jsonwebtoken';
 
+interface TokenPayload {
+    name: string;
+    iat: number;
+    refresh_token_id: number;
+}
+
 export const saveRefreshToken = async (username: string, refreshToken: string, tokenId: number) => {
     try {
         if (!username || ! refreshToken) return Promise.reject({status: 400, msg: "bad request"});
@@ -44,12 +50,6 @@ export const authenticateRefreshToken = async (refreshToken: string) => {
         if (!refreshToken) return Promise.reject({status: 401, msg: "unauthorized access"});
         const refreshSecret = process.env.REFRESH_TOKEN_SECRET as string;
 
-        interface TokenPayload {
-            name: string;
-            iat: number;
-            refresh_token_id: number;
-        }
-
         const decodedRefreshToken = jwt.verify(refreshToken, refreshSecret) as TokenPayload;
         const { name, refresh_token_id } = decodedRefreshToken;
         if (!name || !refresh_token_id) return Promise.reject({status:401, msg: "unauthorized access"});
@@ -82,5 +82,45 @@ export const getSpecifiedRefreshToken = async (username: string, id: number) => 
         return token.rows[0] ? token.rows[0] : Promise.reject({status:403, msg: "forbidden"});
     } catch (err) {
         throw err
+    }
+}
+
+export const removeRefreshToken = async (auth: string) => {
+    try {
+        if (!auth) {
+            return Promise.reject({status:401, msg: "unauthorized access"});
+        }
+        const token = auth.split(' ')[1];
+        const authSecret = process.env.ACCESS_TOKEN_SECRET as string;
+        const decodedToken = jwt.verify(token, authSecret) as TokenPayload;
+        
+        const deleteToken = await db.query(`DELETE FROM refresh_tokens WHERE username = $1 AND user_refresh_token_id = $2 RETURNING *;`, [decodedToken.name, decodedToken.refresh_token_id])
+        return deleteToken.rows[0] ? deleteToken.rows[0] : Promise.reject({status:403, msg: "forbidden"});
+    } catch (err) {
+        if (err instanceof jwt.JsonWebTokenError) {
+            return Promise.reject({ status: 401, msg: "unauthorized access" });
+        } else {
+            throw err
+        }
+    }
+}
+
+export const removeAllRefreshTokens = async (auth: string) => {
+    try {
+        if (!auth) {
+            return Promise.reject({status:401, msg: "unauthorized access"});
+        }
+        const token = auth.split(' ')[1];
+        const authSecret = process.env.ACCESS_TOKEN_SECRET as string;
+        const decodedToken = jwt.verify(token, authSecret) as TokenPayload;
+        
+        const deleteToken = await db.query(`DELETE FROM refresh_tokens WHERE username = $1 RETURNING *;`, [decodedToken.name])
+        return deleteToken.rows[0] ? deleteToken.rows : Promise.reject({status:403, msg: "forbidden"});
+    } catch (err) {
+        if (err instanceof jwt.JsonWebTokenError) {
+            return Promise.reject({ status: 401, msg: "unauthorized access" });
+        } else {
+            throw err
+        }
     }
 }

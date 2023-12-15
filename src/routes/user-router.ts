@@ -1,6 +1,6 @@
 import { Router } from 'express';
 const usersRouter = Router();
-import { getUser, getUsers, postUser, loginUser } from '../controllers/user-controllers';
+import { getUser, getUsers, postUser, loginUser, logoutUser, logoutAllUserInstances } from '../controllers/user-controllers';
 
 usersRouter.get('/', getUsers);
 /**
@@ -127,6 +127,7 @@ usersRouter.post('/login', loginUser)
  *       401:
  *         description: Unauthorized - when username or password is incorrect
  */
-
+usersRouter.delete('/logout', logoutUser)
+usersRouter.delete('/logout-all', logoutAllUserInstances)
 
 export default usersRouter;
