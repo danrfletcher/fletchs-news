@@ -59,7 +59,7 @@ const seed = ({ topicData, userData, articleData, commentData }) => {
         user_refresh_token_id INT NOT NULL
       )
       `)
-      return Promise.all([topicsTablePromise, usersTablePromise, refreshTokensPromise]);
+      return Promise.all([usersTablePromise, topicsTablePromise, refreshTokensPromise]);
     })
     .then(() => {
       return db.query(`
