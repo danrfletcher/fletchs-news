@@ -3,7 +3,7 @@ import { getToken } from '../controllers/token-controller';
 
 export const tokenRouter = Router();
 
-tokenRouter.post('/', () => getToken);
+tokenRouter.post('/', getToken);
 /**
  * @openapi
  * /token:
