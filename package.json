@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "bc-nc-news",
   "main": "./src/listen.ts",
+  "types": "./src/types/index.d.ts",
   "scripts": {
     "setup-dbs": "psql -f ./src/db/setup.sql",
     "seed": "node ./src/db/seeds/run-seed.js",
