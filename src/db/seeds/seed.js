@@ -55,7 +55,8 @@ const seed = ({ topicData, userData, articleData, commentData }) => {
       CREATE TABLE refresh_tokens (
         refresh_token_id SERIAL PRIMARY KEY,
         username VARCHAR NOT NULL REFERENCES users(username),
-        refresh_token VARCHAR NOT NULL
+        refresh_token VARCHAR NOT NULL,
+        user_refresh_token_id INT NOT NULL
       )
       `)
       return Promise.all([topicsTablePromise, usersTablePromise, refreshTokensPromise]);
