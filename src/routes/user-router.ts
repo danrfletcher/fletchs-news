@@ -86,7 +86,7 @@ usersRouter.post('/login', loginUser)
  * /api/users/login:
  *   post:
  *     tags:
- *       - Users
+ *       - Authentication
  *     summary: Logs the user into their account
  *     description: Allows a user to log in using their username and password.
  *     requestBody:
@@ -110,24 +110,50 @@ usersRouter.post('/login', loginUser)
  *             schema:
  *               type: object
  *               properties:
- *                 user:
- *                   type: object
- *                   properties:
- *                     username:
- *                       type: string
- *                       example: "grumpy19"
- *                     name:
- *                       type: string
- *                       example: "Paul Grump"
- *                     avatar_url:
- *                       type: string
- *                       example: "https://vignette.wikia.nocookie.net/mrmen/images/7/78/Mr-Grumpy-3A.PNG/revision/latest?cb=20170707233013"
+ *                 accessToken:
+ *                   type: string
+ *                   example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuYW1lIjoidGlja2xlMTIyIiwiaWF0IjoxNzAyNjgyODY4LCJleHAiOjE3MDI2ODQ2Njh9.spWMbA3y7UaRSwgtsXkanYaYmGdmKxB2jij6JV3GLes"
+ *                 refreshToken:
+ *                   type: string
+ *                   example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuYW1lIjoidGlja2xlMTIyIiwiaWF0IjoxNzAyNjgzMDMyLCJleHAiOjE3MDI2ODQ4MzJ9.HYJ6h3pqNr2PUgXu5ohgUADSckW1Vmd9AvVMJM4VTv8"
  *       400:
  *         description: Bad request
  *       401:
  *         description: Unauthorized - when username or password is incorrect
  */
 usersRouter.delete('/logout', logoutUser)
+/**
+ * @openapi
+ * /api/users/logout:
+ *   delete:
+ *     tags:
+ *       - Authentication
+ *     summary: Logs user out
+ *     description: Logs user out by deleting the corresponding refresh token from the database
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       204:
+ *         description: Successfully logged out, no content returned
+ *       401:
+ *         description: Unauthorized - Invalid or missing authorization token
+ */
 usersRouter.delete('/logout-all', logoutAllUserInstances)
+/**
+ * @openapi
+ * /api/users/logout-all:
+ *   delete:
+ *     tags:
+ *       - Authentication
+ *     summary: Logs user out of all sessions
+ *     description: Deletes all of the user's refresh tokens from the database, effectively terminating all logged-in sessions
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       204:
+ *         description: Successfully logged out of all sessions, no content returned
+ *       401:
+ *         description: Unauthorized - Invalid or missing authorization token
+ */
 
 export default usersRouter;
