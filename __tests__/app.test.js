@@ -759,7 +759,6 @@ describe('POST Requests', () => {
             .expect(200)
             .then((res) => {
                 expect(typeof res.body.accessToken).toBe('string');
-                expect(typeof res.body.refreshToken).toBe('string');
             })
         });
         test('400: returns bas request when parameters are missing from the request', () => {
@@ -800,44 +799,34 @@ describe('POST Requests', () => {
     });
     describe('POST /api/token', () => {
         test('200: returns new authentication token when refresh token is valid', async () => {
-            return request(app)
+            const loginResponse = await request(app)
             .post('/api/users/login')
             .send({
                 username: "butter_bridge",
                 password: "password"
             })
-            .expect(200)
-            .then((res) => {
-                return request(app)
-                .post('/api/token')
-                .send({
-                    token: res.body.refreshToken
-                })
-                .expect(200)
-                .then((res) => {
-                    expect(res.body.accessToken)
-                })
-            })
+            .expect(200);
+
+            const refreshTokenCookie = loginResponse.headers['set-cookie'].find(cookie => cookie.startsWith('refreshToken='));
+            const tokenResponse = await request(app)
+            .post('/api/token')
+            .set('Cookie', refreshTokenCookie)
+            .expect(200);
+            expect(tokenResponse.body.accessToken).toBeDefined();
         });
-        test('401: returns unauthorized access when refresh token is invalid', () => {
-            return request(app)
+        test('401: returns unauthorized access when refresh token is invalid', async () => {
+            const loginResponse = await request(app)
             .post('/api/users/login')
             .send({
                 username: "butter_bridge",
                 password: "password"
             })
-            .expect(200)
-            .then((res) => {
-                return request(app)
-                .post('/api/token')
-                .send({
-                    token: "invalid"
-                })
-                .expect(401)
-                .then((res) => {
-                    expect(res.body.msg).toBe('unauthorized access')
-                })
-            })
+            .expect(200);
+
+            const tokenResponse = await request(app)
+            .post('/api/token')
+            .set('Cookie', "some-invalid-cookie")
+            .expect(401);
         });
     });
 });
