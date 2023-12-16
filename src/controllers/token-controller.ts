@@ -4,7 +4,7 @@ import jwt from 'jsonwebtoken';
 
 export const getToken = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
-        const refreshToken = req.body.token;
+        const refreshToken = req.cookies.refreshToken;
         
         //Validate refresh token
         const validRefreshToken = await authenticateRefreshToken(refreshToken)

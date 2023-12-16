@@ -60,7 +60,14 @@ export const loginUser = async (req: Request, res: Response, next: NextFunction)
             
             const save = await saveRefreshToken(username, refreshToken, tokenId)
 
-            res.status(200).send({accessToken: accessToken, refreshToken: refreshToken})
+            res.status(200)
+            .cookie('refreshToken', refreshToken, {
+                httpOnly: true,
+                secure: true, 
+                sameSite: 'none', 
+                expires: new Date(new Date().setFullYear(new Date().getFullYear() + 10))
+            })
+            .send({accessToken: accessToken})
         } else {
             res.status(500).send({msg: "internal server error"})
         }
