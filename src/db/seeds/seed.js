@@ -1,3 +1,4 @@
+const argon2 = require('argon2');
 const format = require('pg-format');
 const db = require('../connection');
 const {
@@ -8,7 +9,16 @@ const {
 
 const seed = ({ topicData, userData, articleData, commentData }) => {
   return db
-    .query(`DROP TABLE IF EXISTS comments;`)
+    .query(`DROP TABLE IF EXISTS article_votes;`)
+    .then(()=> {
+      return db.query(`DROP TABLE IF EXISTS refresh_tokens;`);
+    })
+    .then(() => {
+      return db.query(`DROP TABLE IF EXISTS comment_votes;`);
+    })
+    .then(() => {
+      return db.query(`DROP TABLE IF EXISTS comments;`);
+    })
     .then(() => {
       return db.query(`DROP TABLE IF EXISTS articles;`);
     })
@@ -19,20 +29,37 @@ const seed = ({ topicData, userData, articleData, commentData }) => {
       return db.query(`DROP TABLE IF EXISTS topics;`);
     })
     .then(() => {
+      return Promise.all(userData.map(user => argon2.hash(user.password)))
+    })
+    .then((passwords) => {
+      passwords.forEach((password, index) => {
+        userData[index].password = password
+      });
+    })
+    .then(() => {
+      const usersTablePromise = db.query(`
+      CREATE TABLE users (
+        username VARCHAR PRIMARY KEY,
+        name VARCHAR NOT NULL,
+        avatar_url VARCHAR,
+        password VARCHAR NOT NULL
+      );`);
+
       const topicsTablePromise = db.query(`
       CREATE TABLE topics (
         slug VARCHAR PRIMARY KEY,
         description VARCHAR
       );`);
 
-      const usersTablePromise = db.query(`
-      CREATE TABLE users (
-        username VARCHAR PRIMARY KEY,
-        name VARCHAR NOT NULL,
-        avatar_url VARCHAR
-      );`);
-
-      return Promise.all([topicsTablePromise, usersTablePromise]);
+      const refreshTokensPromise = db.query(`
+      CREATE TABLE refresh_tokens (
+        refresh_token_id SERIAL PRIMARY KEY,
+        username VARCHAR NOT NULL REFERENCES users(username),
+        refresh_token VARCHAR NOT NULL,
+        user_refresh_token_id INT NOT NULL
+      )
+      `)
+      return Promise.all([usersTablePromise, topicsTablePromise, refreshTokensPromise]);
     })
     .then(() => {
       return db.query(`
@@ -49,6 +76,16 @@ const seed = ({ topicData, userData, articleData, commentData }) => {
     })
     .then(() => {
       return db.query(`
+      CREATE TABLE article_votes (
+        vote_id SERIAL PRIMARY KEY,
+        article_id INT NOT NULL REFERENCES articles(article_id) ON DELETE CASCADE,
+        username VARCHAR NOT NULL REFERENCES users(username) ON DELETE CASCADE,
+        vote_type VARCHAR NOT NULL CHECK (vote_type IN ('upvote', 'downvote')),
+        UNIQUE(article_id, username, vote_type)
+      );`);
+    })
+    .then(() => {
+      return db.query(`
       CREATE TABLE comments (
         comment_id SERIAL PRIMARY KEY,
         body VARCHAR NOT NULL,
@@ -56,6 +93,16 @@ const seed = ({ topicData, userData, articleData, commentData }) => {
         author VARCHAR REFERENCES users(username) NOT NULL,
         votes INT DEFAULT 0 NOT NULL,
         created_at TIMESTAMP DEFAULT NOW()
+        );`);
+      })
+    .then(() => {
+      return db.query(`
+      CREATE TABLE comment_votes (
+        vote_id SERIAL PRIMARY KEY,
+        comment_id INT NOT NULL REFERENCES comments(comment_id) ON DELETE CASCADE,
+        username VARCHAR NOT NULL REFERENCES users(username) ON DELETE CASCADE,
+        vote_type VARCHAR NOT NULL CHECK (vote_type IN ('upvote', 'downvote')),
+        UNIQUE(comment_id, username, vote_type)
       );`);
     })
     .then(() => {
@@ -66,11 +113,12 @@ const seed = ({ topicData, userData, articleData, commentData }) => {
       const topicsPromise = db.query(insertTopicsQueryStr);
 
       const insertUsersQueryStr = format(
-        'INSERT INTO users ( username, name, avatar_url) VALUES %L;',
-        userData.map(({ username, name, avatar_url }) => [
+        'INSERT INTO users ( username, name, avatar_url, password) VALUES %L;',
+        userData.map(({ username, name, avatar_url, password }) => [
           username,
           name,
           avatar_url,
+          password
         ])
       );
       const usersPromise = db.query(insertUsersQueryStr);
@@ -93,7 +141,6 @@ const seed = ({ topicData, userData, articleData, commentData }) => {
           }) => [title, topic, author, body, created_at, votes, article_img_url]
         )
       );
-
       return db.query(insertArticlesQueryStr);
     })
     .then(({ rows: articleRows }) => {
@@ -113,7 +160,36 @@ const seed = ({ topicData, userData, articleData, commentData }) => {
         )
       );
       return db.query(insertCommentsQueryStr);
-    });
+    })
+    .then(() => {
+      const promises = []
+      userData.map(({ username, article_upvotes, article_downvotes, comment_upvotes, comment_downvotes }) => {
+        const insertUserArticleUpvotes = format(
+          `INSERT INTO article_votes (article_id, username, vote_type) VALUES %L;`,
+          article_upvotes.map((article_id) => [article_id, username, 'upvote'])
+          )
+          promises.push(db.query(insertUserArticleUpvotes))
+          
+        const insertUserArticleDownvotes = format(
+          `INSERT INTO article_votes (article_id, username, vote_type) VALUES %L;`,
+          article_downvotes.map((article_id) => [article_id, username, 'downvote'])
+          )
+          promises.push(db.query(insertUserArticleDownvotes))
+        
+        const insertUserCommentUpvotes = format(
+          `INSERT INTO comment_votes (comment_id, username, vote_type) VALUES %L;`,
+          comment_upvotes.map((comment_id) => [comment_id, username, 'upvote'])
+          )
+          promises.push(db.query(insertUserCommentUpvotes))
+
+        const insertUserCommentDownvotes = format(
+          `INSERT INTO comment_votes (comment_id, username, vote_type) VALUES %L;`,
+          comment_downvotes.map((comment_id) => [comment_id, username, 'downvote'])
+          )
+          promises.push(db.query(insertUserCommentDownvotes))
+      });
+      Promise.all(promises)
+    })
 };
 
 module.exports = seed;

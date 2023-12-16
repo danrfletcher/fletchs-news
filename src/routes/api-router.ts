@@ -4,6 +4,7 @@ import articlesRouter from './article-router';
 import commentsRouter from './comment-router';
 import usersRouter from './user-router'
 import topicsRouter from './topics-router'
+import tokenRouter from './token-router'
 
 const apiRouter = Router();
 
@@ -11,6 +12,7 @@ apiRouter.use('/topics', topicsRouter);
 apiRouter.use('/articles', articlesRouter);
 apiRouter.use('/users', usersRouter);
 apiRouter.use('/comments', commentsRouter);
+apiRouter.use('/token', tokenRouter)
 
 const { getEndpoints } = require('../controllers/endpoint-controllers.js');
 apiRouter.get('/', getEndpoints);

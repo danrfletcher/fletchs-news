@@ -345,6 +345,76 @@ describe('DELETE Requests', () => {
             });
         });
     });
+    describe('DELETE /api/users/logout', () => {
+        test('204: logs out user who provides valid auth token', () => {
+            return request(app)
+            .post('/api/users/login')
+            .send({
+                username: "butter_bridge",
+                password: "password"
+            })
+            .expect(200)
+            .then((res) => {
+                return request(app)
+                .delete('/api/users/logout')
+                .set('authorization', `Bearer ${res.body.accessToken}`)
+                .expect(204)
+            });
+        });
+        test('401: prevent forceful logouts, responds with unauthorized access when auth token is invalid', () => {
+            return request(app)
+            .post('/api/users/login')
+            .send({
+                username: "butter_bridge",
+                password: "password"
+            })
+            .expect(200)
+            .then((res) => {
+                return request(app)
+                .delete('/api/users/logout')
+                .set('authorization', `Bearer Invalid`)
+                .expect(401)
+                .then((res) => {
+                    expect(res.body.msg).toBe('unauthorized access')
+                })
+            });
+        });
+    });
+    describe('DELETE /api/users/logout-all', () => {
+        test('204: logs out all user instances for user who provides valid auth token.', () => {
+            return request(app)
+            .post('/api/users/login')
+            .send({
+                username: "butter_bridge",
+                password: "password"
+            })
+            .expect(200)
+            .then((res) => {
+                return request(app)
+                .delete('/api/users/logout')
+                .set('authorization', `Bearer ${res.body.accessToken}`)
+                .expect(204)
+            });
+        });
+        test('401: prevent forceful logouts, responds with unauthorized access when auth token is invalid', () => {
+            return request(app)
+            .post('/api/users/login')
+            .send({
+                username: "butter_bridge",
+                password: "password"
+            })
+            .expect(200)
+            .then((res) => {
+                return request(app)
+                .delete('/api/users/logout')
+                .set('authorization', `Bearer Invalid`)
+                .expect(401)
+                .then((res) => {
+                    expect(res.body.msg).toBe('unauthorized access')
+                })
+            });
+        });
+    });
 });
 
 describe('PATCH Requests', () => {
@@ -630,7 +700,146 @@ describe('POST Requests', () => {
             });
         });
     });
+    describe('/api/users', () => {
+        test('201: responds with new user when successfully created', () => {
+            return request(app)
+            .post('/api/users')
+            .send({
+                username: "new_user",
+                name: "john",
+                avatar_url: "https://www.healthytherapies.com/wp-content/uploads/2016/06/Lime3.jpg",
+                password: "password"
+            })
+            .expect(201)
+            .then((res) => {
+                expect(res.body.user).toEqual(expect.objectContaining({
+                    username: "new_user",
+                    name: "john",
+                    avatar_url: "https://www.healthytherapies.com/wp-content/uploads/2016/06/Lime3.jpg",
+                }));
+                expect(res.body.user).not.toHaveProperty("password");
+            });
+        });
+        test('400: responds with bad request when properties are missing from the request', () => {
+            return request(app)
+            .post('/api/users')
+            .send({
+                username: "another_new_user",
+                name: "john",
+                avatar_url: "https://www.healthytherapies.com/wp-content/uploads/2016/06/Lime3.jpg"
+            })
+            .expect(400)
+            .then((res) => {
+                expect(res.body.msg).toBe('bad request');
+            })
+        });
+        test('409: responds with error when the username already exists', () => {
+            return request(app)
+            .post('/api/users')
+            .send({
+                username: "butter_bridge",
+                name: "john",
+                avatar_url: "https://www.healthytherapies.com/wp-content/uploads/2016/06/Lime3.jpg",
+                password: "password"
+            })
+            .expect(409)
+            .then((res) => {
+                expect(res.body.msg).toBe('username already exists');
+            })
+        });
+    });
+    describe('/api/users/login', () => {
+        test('200: returns JWT & logs user into account when correct details are passed', () => {
+            return request(app)
+            .post('/api/users/login')
+            .send({
+                username: "butter_bridge",
+                password: "password"
+            })
+            .expect(200)
+            .then((res) => {
+                expect(typeof res.body.accessToken).toBe('string');
+                expect(typeof res.body.refreshToken).toBe('string');
+            })
+        });
+        test('400: returns bas request when parameters are missing from the request', () => {
+            return request(app)
+            .post('/api/users/login')
+            .send({
+                username: "butter_bridge",
+            })
+            .expect(400)
+            .then((res) => {
+                expect(res.body.msg).toBe('bad request');
+            })
+        });
+        test('401: return unauthorized when user enters incorrect password', () => {
+            return request(app)
+            .post('/api/users/login')
+            .send({
+                username: "butter_bridge",
+                password: "not_the_password"
+            })
+            .expect(401)
+            .then((res) => {
+                expect(res.body.msg).toBe('username or password incorrect');
+            })
+        });
+        test('401: returns unauthorized when user enters incorrect username', () => {
+            return request(app)
+            .post('/api/users/login')
+            .send({
+                username: "not_butter_bridge",
+                password: "password"
+            })
+            .expect(401)
+            .then((res) => {
+                expect(res.body.msg).toBe('username or password incorrect');
+            })
+        });
+    });
+    describe('POST /api/token', () => {
+        test('200: returns new authentication token when refresh token is valid', async () => {
+            return request(app)
+            .post('/api/users/login')
+            .send({
+                username: "butter_bridge",
+                password: "password"
+            })
+            .expect(200)
+            .then((res) => {
+                return request(app)
+                .post('/api/token')
+                .send({
+                    token: res.body.refreshToken
+                })
+                .expect(200)
+                .then((res) => {
+                    expect(res.body.accessToken)
+                })
+            })
+        });
+        test('401: returns unauthorized access when refresh token is invalid', () => {
+            return request(app)
+            .post('/api/users/login')
+            .send({
+                username: "butter_bridge",
+                password: "password"
+            })
+            .expect(200)
+            .then((res) => {
+                return request(app)
+                .post('/api/token')
+                .send({
+                    token: "invalid"
+                })
+                .expect(401)
+                .then((res) => {
+                    expect(res.body.msg).toBe('unauthorized access')
+                })
+            })
+        });
+    });
 });
-
 
 
