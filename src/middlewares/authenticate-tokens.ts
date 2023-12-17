@@ -1,18 +1,34 @@
 import { Request, Response, NextFunction } from "express";
 import jwt from 'jsonwebtoken';
+import { JwtPayload } from "jsonwebtoken";
+
+
+// Allow authenticated user to be placed on request
+interface CustomJwt extends JwtPayload {
+    name?: string;
+}
+
+declare module 'express-serve-static-core' {
+    interface Request {
+        user?: CustomJwt;
+    }
+}
 
 export const authenticateToken = (req: Request, res: Response, next: NextFunction): Promise<never> | void => {
     const authHeader = req.headers['authorization']
     const token = authHeader?.split(' ')[1];
+    const error = new Error('Authorization token missing from request');
+    //@ts-ignore
+    error.status = 401;
     if (!token) {
-        return Promise.reject({status: 401, message: 'Authorization token missing from request'})
+        return next(error);
     } else {
         const accessTokenSecret = process.env.ACCESS_TOKEN_SECRET as string;
         jwt.verify(token, accessTokenSecret, (err, user): Promise<never> | void => {
             if (err) {
-                return Promise.reject({status: 403, msg: 'User token is invalid'})
+                next(error)
             } else {
-                req.user = user;
+                req.user = user as CustomJwt;
                 next()
             }
         })
