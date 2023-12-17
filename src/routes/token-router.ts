@@ -3,11 +3,11 @@ import { getToken } from '../controllers/token-controller';
 
 export const tokenRouter = Router();
 
-tokenRouter.post('/', getToken);
+tokenRouter.get('/', getToken);
 /**
  * @openapi
  * /api/token:
- *   post:
+ *   get:
  *     summary: Responds with user access token
  *     tags:
  *       - Authentication
