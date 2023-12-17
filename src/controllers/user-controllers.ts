@@ -60,12 +60,14 @@ export const loginUser = async (req: Request, res: Response, next: NextFunction)
             
             const save = await saveRefreshToken(username, refreshToken, tokenId)
 
+            const env = process.env.NODE_ENV
+
             res.status(200)
             .cookie('refreshToken', refreshToken, {
                 httpOnly: true,
-                secure: true, 
-                sameSite: 'none', 
-                expires: new Date(new Date().setFullYear(new Date().getFullYear() + 10))
+                secure: env === 'development' || env === 'test' ? false : true, 
+                sameSite: env === 'development' || env === 'test' ? 'lax' : 'none', 
+                expires: new Date(new Date().setFullYear(new Date().getFullYear() + 10)),
             })
             .send({accessToken: accessToken})
         } else {
