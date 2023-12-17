@@ -38,13 +38,18 @@ exports.postCommentByArticleID = async (req, res, next) => {
         const comment = req.body;
         const { author } = comment;
         const { article_id } = req.params;
-
+        
         const ifArticleIsValid = await selectArticle(article_id);
         const ifUserAndArticleAreValid = await selectUser(author);
-
-        const postedComment = await postComment(article_id, comment);
-
-        res.status(201).send({ comment: postedComment });
+        const userMatchesAuthor = req.user.name === author
+        
+        if (userMatchesAuthor) {
+            const postedComment = await postComment(article_id, comment);
+            res.status(201).send({ comment: postedComment });
+        } else {
+            return Promise.reject({status: 401, msg: "unauthorized access"});
+        }
+        
     } catch (error) {
         next(error);
     }
