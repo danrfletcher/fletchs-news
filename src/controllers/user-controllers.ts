@@ -69,7 +69,7 @@ export const loginUser = async (req: Request, res: Response, next: NextFunction)
                 sameSite: env === 'development' || env === 'test' ? 'lax' : 'none', 
                 expires: new Date(new Date().setFullYear(new Date().getFullYear() + 10)),
             })
-            .send({accessToken: accessToken})
+            .send({accessToken: accessToken, refreshToken: refreshToken})
         } else {
             res.status(500).send({msg: "internal server error"})
         }
