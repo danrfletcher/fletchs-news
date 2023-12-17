@@ -61,11 +61,15 @@ exports.selectArticle = (article_id) => {
 exports.postComment = (article_id, comment) => {
     const { author } = comment;
     if (!author) return Promise.reject({status: 400, msg: "bad request"});
+
     return db.query(format(
         `INSERT INTO comments (body, article_id, author, votes) VALUES (%L) RETURNING *;`
         , [comment.body, article_id, comment.author, 0]
     ))
-    .then(comment => comment.rows[0]);
+
+    .then((comment) => {
+        return comment.rows[0]
+    });
 }
 
 
@@ -78,7 +82,8 @@ exports.selectCommentsByArticleID = (article_id, fullQuery) => {
     if (p) offset = format(` OFFSET %s;`, (p-1)*limit);
 
     let queryStr = format(`SELECT * FROM comments WHERE article_id = %L `, [article_id])
-    queryStr += format(`LIMIT %s`, limit)
+    queryStr += format(` ORDER BY created_at DESC`);
+    queryStr += format(` LIMIT %s`, limit)
     queryStr += offset;
 
     return db.query(queryStr)

@@ -1,5 +1,6 @@
 import { Router } from 'express';
-import { getToken } from '../controllers/token-controller';
+import { getToken, getUserFromToken } from '../controllers/token-controller';
+import { authenticateToken } from '../middlewares/authenticate-tokens';
 
 export const tokenRouter = Router();
 
@@ -35,6 +36,15 @@ tokenRouter.get('/', getToken);
  *                   description: Newly generated user access token
  *       401:
  *         description: Unauthorized - Invalid or expired refresh token
+ */
+tokenRouter.get('/user', authenticateToken, getUserFromToken);
+/**
+ * @openapi
+ * /api/token/user:
+ *   get: 
+ *     summary: Responds with user details when passed correct authorization header
+ *     tags:
+ *       - Authentication
  */
 
 export default tokenRouter

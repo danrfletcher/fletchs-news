@@ -1,6 +1,7 @@
 import { Router } from 'express';
 
 const { getArticles, getArticleByID, getCommentsByArticleID, changeVotesByArticleID, postCommentByArticleID, postArticle } = require('../controllers/article-controllers.js');
+import { authenticateToken } from '../middlewares/authenticate-tokens';
 
 const articlesRouter = Router();
 
@@ -71,7 +72,7 @@ articlesRouter.route('/:article_id')
      */
 
     articlesRouter.route('/:article_id/comments')
-    .post(postCommentByArticleID)
+    .post(authenticateToken, postCommentByArticleID)
     /**
      * @openapi
      * /api/articles/{article_id}/comments:
