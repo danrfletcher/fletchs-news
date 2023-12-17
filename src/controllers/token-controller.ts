@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from "express";
 import { authenticateRefreshToken } from "../models/token-models";
 import jwt from 'jsonwebtoken';
+import { selectUser } from "../models/user-models";
 
 export const getToken = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
@@ -18,6 +19,21 @@ export const getToken = async (req: Request, res: Response, next: NextFunction):
 
             //Send token to client
             res.status(200).send({accessToken})
+        }
+    } catch (err) {
+        next(err);
+    }
+};
+
+export const getUserFromToken = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    try {
+        if (req.user) {
+            const user = await selectUser(req.user.name)
+            delete user.password
+            res.status(200).send({user})
+        }
+        else {
+            res.status(401).send({msg: "unauthorized access"})
         }
     } catch (err) {
         next(err);
